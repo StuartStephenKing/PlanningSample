@@ -1,0 +1,32 @@
+{
+	"@type":"Process",
+	"Name":"Plans_TakeOwnership",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Plans_TakeOwnership.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pPlan",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pTask",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pMember",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

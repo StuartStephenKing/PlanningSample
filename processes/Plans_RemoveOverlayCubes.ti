@@ -1,0 +1,16 @@
+#region Prolog
+
+vCubeIndex = 1;
+vCube = DIMNM ( '}Cubes', vCubeIndex );
+WHILE ( vCube @<> '' );
+    IF ( SUBST ( vCube, 1, 1 ) @<> '}' );
+        vOverlayCube = '}SecurityOverlayGlobal_' | vCube;
+        IF ( CubeExists ( vOverlayCube ) = 1);
+            SecurityOverlayDestroyGlobalDefault ( vCube );
+        ENDIF;
+    ENDIF;
+    
+    vCubeIndex = vCubeIndex + 1;
+    vCube = DIMNM ( '}Cubes', vCubeIndex );
+END;
+#endregion

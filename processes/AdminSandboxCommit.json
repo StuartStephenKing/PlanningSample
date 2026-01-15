@@ -1,0 +1,20 @@
+{
+	"@type":"Process",
+	"Name":"AdminSandboxCommit",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"AdminSandboxCommit.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pSandbox",
+			"Prompt":"",
+			"Value":"Sandbox1",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

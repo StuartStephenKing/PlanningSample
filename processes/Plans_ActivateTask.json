@@ -1,0 +1,26 @@
+{
+	"@type":"Process",
+	"Name":"Plans_ActivateTask",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Plans_ActivateTask.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pPlan",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pTask",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

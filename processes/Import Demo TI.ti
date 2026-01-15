@@ -1,0 +1,91 @@
+#region Prolog
+MinorErrorLogMax = -1;
+OnMinorErrorDoItemSkip = 1;
+CurrentLogSetting = CubeGetLogChanges('plan_BudgetPlan');
+CubeSetLogChanges('plan_BudgetPlan', 0);
+NumMetaRowsRead = 0;
+NumMetaRowsProcessed = 0;
+NumRowsRead = 0;
+NumRowsProcessed = 0;
+SetInputCharacterSet('UTF-8');
+vLastDimIndex = CubeDimensionCountGet('plan_BudgetPlan');
+vLastDim = TabDim('plan_BudgetPlan', vLastDimIndex);
+#endregion
+#region Metadata
+NumMetaRowsRead = NumMetaRowsRead + 1;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_version@<>'');
+HierarchyElementInsert('plan_version','plan_version','',plan_version,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_version','plan_version',vFirstConsolidation,plan_version,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_business_unit@<>'');
+HierarchyElementInsert('plan_business_unit','plan_business_unit','',plan_business_unit,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_business_unit','plan_business_unit',vFirstConsolidation,plan_business_unit,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_department@<>'');
+HierarchyElementInsert('plan_department','plan_department','',plan_department,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_department','plan_department',vFirstConsolidation,plan_department,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_chart_of_accounts@<>'');
+HierarchyElementInsert('plan_chart_of_accounts','plan_chart_of_accounts','',plan_chart_of_accounts,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_chart_of_accounts','plan_chart_of_accounts',vFirstConsolidation,plan_chart_of_accounts,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_exchange_rates@<>'');
+HierarchyElementInsert('plan_exchange_rates','plan_exchange_rates','',plan_exchange_rates,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_exchange_rates','plan_exchange_rates',vFirstConsolidation,plan_exchange_rates,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_source@<>'');
+HierarchyElementInsert('plan_source','plan_source','',plan_source,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_source','plan_source',vFirstConsolidation,plan_source,1.0);
+EndIf;
+EndIf;
+vFirstConsolidation='';
+vLastConsolidation='';
+If(plan_time@<>'');
+HierarchyElementInsert('plan_time','plan_time','',plan_time,'N');
+If(vFirstConsolidation@<>'');
+HierarchyElementComponentAdd('plan_time','plan_time',vFirstConsolidation,plan_time,1.0);
+EndIf;
+EndIf;
+NumMetaRowsProcessed = NumMetaRowsProcessed + 1;
+#endregion
+#region Data
+NumRowsRead = NumRowsRead + 1;
+If (Value @<> '');
+If (DType(vLastDim,plan_time) @= 'N');
+CellPutN(StringToNumberEx(Value,'.',','),'plan_BudgetPlan',plan_version,plan_business_unit,plan_department,plan_chart_of_accounts,plan_exchange_rates,plan_source,plan_time);
+Else;
+CellPutS(Value,'plan_BudgetPlan',plan_version,plan_business_unit,plan_department,plan_chart_of_accounts,plan_exchange_rates,plan_source,plan_time);
+EndIf;
+NumRowsProcessed = NumRowsProcessed + 1;
+EndIf;
+#endregion
+#region Epilog
+If (pResult @<> '');
+TextOutput(pResult, NumberToString(NumRowsRead), NumberToString(NumRowsProcessed), NumberToString(NumMetaRowsRead), NumberToString(NumMetaRowsProcessed));
+EndIf;
+CubeSaveData('plan_BudgetPlan');
+CubeSetLogChanges('plan_BudgetPlan', CurrentLogSetting);
+#endregion

@@ -1,0 +1,49 @@
+#region Prolog
+
+vNow = TIMST (NOW(), '\Y-\m-\d \h:\i:\s' );
+vUser = TM1User();
+
+vPlanStateCube = pPrefix | '_' | pPlan | '_State';
+vPlanTaskDimension = pPrefix | '_' | pPlan | '_Tasks';
+vPlanControlCube = pPrefix;
+
+vOriginalApprovalDimension = CELLGETS ( '}Plans', pPlan , 'Dimension' );
+
+vPlanApprovalDimension = pPrefix | '_' | pPlan | '_Approval';
+vPlanApprovalHierarchy = vPlanApprovalDimension;
+vPlanApprovalSubset = 'Default';
+
+
+
+vOverlayCube = '}SecurityOverlayGlobal_' | pCube;
+vOverlayMap = '';
+vDimIndex = 1;
+vDim = TABDIM ( pCube, vDimIndex );
+WHILE ( vDim @<> '' );
+    IF ( vDim @= vOriginalApprovalDimension );
+        vOverlayMap = vOverlayMap | '1';
+    ELSE;
+        vOverlayMap = vOverlayMap | '0';
+    ENDIF;
+    IF ( vDimIndex < CubeDimensionCountGet ( pCube ) );
+        vOverlayMap = vOverlayMap | ':';
+    ENDIF;
+    vDimIndex = vDimIndex + 1;
+    vDim = TABDIM ( pCube, vDimIndex );
+END;
+
+IF ( CubeExists ( vOverlayCube ) = 0);
+    #LogOutput( 'INFO', 'Generating SecurityOverlay cube for ' | vCube | ' with map ' | vOverlayMap );
+    SecurityOverlayCreateGlobalDefault ( pCube, vOverlayMap );
+ENDIF;
+
+vElementIndex = 1;
+vElement = ElementName( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+WHILE ( vElement @<> '' );
+    SecurityOverlayGlobalLockNode ( 1, pCube, vElement );
+    vElementIndex = vElementIndex + 1;
+    vElement = ElementName( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+END;
+
+
+#endregion

@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Create dimension",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Create dimension.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

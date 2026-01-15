@@ -1,0 +1,6 @@
+{
+	"@type":"Subset",
+	"Name":"Net_Operating_Income2",
+	"Alias":"AccountName",
+	"Expression":"{DESCENDANTS([plan_chart_of_accounts].[Net Operating Income])}"
+}

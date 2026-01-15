@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Plans_RemoveDataReservations",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Plans_RemoveDataReservations.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

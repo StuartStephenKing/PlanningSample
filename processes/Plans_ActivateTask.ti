@@ -1,0 +1,97 @@
+#region Prolog
+
+vPrefix = '}Plans';
+vPlanStateCube = vPrefix | '_' | pPlan | '_State';
+vPlanTaskDimension = vPrefix | '_' | pPlan | '_Tasks';
+vPlanControlCube = vPrefix;
+vModelApprovalDimension = CELLGETS ( '}Plans', pPlan , 'Dimension' );
+vModelApprovalHierarchy = CELLGETS ( '}Plans', pPlan , 'Hierarchy' );
+vPlanApprovalDimension = vPrefix | '_' | pPlan | '_Approval';
+vPlanApprovalHierarchy = vPlanApprovalDimension;
+vPlanApprovalSubset = 'Default';
+
+IF ( CubeExists ( '}Capabilities' ) = 1 );
+    CellPutS ( 'GRANT', '}Capabilities', 'ManageDataReservation', 'EXECUTE', '}Plans_Everyone' );
+    CellPutS ( 'GRANT', '}Capabilities', 'DataReservationOverride', 'EXECUTE', '}Plans_Everyone' );
+ENDIF;
+
+# Create }ElementSecurity
+vElementSecurityCube = '}ElementSecurity_' | vModelApprovalDimension; 
+IF ( CubeExists ( vElementSecurityCube ) = 0 );
+    CubeCreate ( vElementSecurityCube, vModelApprovalDimension, '}Groups' );
+ELSE;
+    CubeClearData( vElementSecurityCube );
+ENDIF;
+
+# Groups
+vElementIndex = 1;
+vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+WHILE ( vElement @<> '' );
+    vContributor = CellGetS ( vPlanStateCube, vElement, pTask, 'Contributor' );
+    vReviewer = CellGetS ( vPlanStateCube, vElement, pTask, 'Reviewer' );
+    IF ( vContributor @<> '' );
+        #LogOutput( 'INFO', 'Adding group ' | vContributor );
+        AddGroup ( vContributor );
+    ENDIF;
+    IF ( vReviewer @<> '' );
+        #LogOutput( 'INFO', 'Adding group ' | vReviewer );
+        AddGroup ( vReviewer );
+    ENDIF;
+    vElementIndex = vElementIndex + 1;
+    vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+END;
+
+# Repeat this section for each contribution cube used in the plan
+vCube = 'plan_BudgetPlan';
+ExecuteProcess ( 'Plans_ActivateTaskCube', 'pPlan', pPlan, 'pTask', pTask, 'pPrefix', vPrefix, 'pCube', vCube );
+
+#endregion
+#region Epilog
+
+# Groups
+vElementIndex = 1;
+vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+WHILE ( vElement @<> '' );
+    vContributor = CellGetS ( vPlanStateCube, vElement, pTask, 'Contributor' );
+    IF ( vContributor @<> '' );
+        vLockSubset = '_TempElementSecuritySubset_' | vElement | '_Contributor';
+        vLockSubsetMDX = '{DESCENDANTS([' | vPlanApprovalDimension | '].[' | vPlanApprovalHierarchy | '].[' | vElement  | '])}';
+        SubsetCreatebyMDX ( vLockSubset, vLockSubsetMDX, 1 );
+        vSubsetIndex = 1;
+        vSubsetSize = HierarchySubsetGetSize ( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset );
+        WHILE ( vSubsetIndex <= vSubsetSize );
+            vDescendant = HierarchySubsetGetElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset, vSubsetIndex );
+            #LogOutput( 'INFO', 'WRITE - ' | vElementSecurityCube | ' - ' | vDescendant | ' - ' | vContributor );
+            CellPutS( 'WRITE', vElementSecurityCube, vDescendant, vContributor );
+            #HierarchyElementSecurityPut ( 'WRITE', vModelApprovalDimension, vModelApprovalHierarchy, vDescendant, vContributor );
+            vSubsetIndex = vSubsetIndex + 1;
+        END;
+    ENDIF;
+    vElementIndex = vElementIndex + 1;
+    vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+END;
+
+vElementIndex = 1;
+vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+WHILE ( vElement @<> '' );
+    vReviewer = CellGetS ( vPlanStateCube, vElement, pTask, 'Reviewer' );
+    IF ( vReviewer @<> '' );
+        vLockSubset = '_TempElementSecuritySubset' | vElement | '_Reviewer';
+        vLockSubsetMDX = '{DESCENDANTS([' | vPlanApprovalDimension | '].[' | vPlanApprovalHierarchy | '].[' | vElement  | '])}';
+        SubsetCreatebyMDX ( vLockSubset, vLockSubsetMDX, 1 );
+        vSubsetIndex = 1;
+        vSubsetSize = HierarchySubsetGetSize( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset );
+        WHILE ( vSubsetIndex <= vSubsetSize );
+            vDescendant = HierarchySubsetGetElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset, vSubsetIndex );
+            #LogOutput( 'INFO', 'READ - ' | vElementSecurityCube | ' - ' | vDescendant | ' - ' | vReviewer );
+            #HierarchyElementSecurityPut( 'WRITE', vModelApprovalDimension, vModelApprovalHierarchy, vDescendant, vReviewer );
+            CellPutS( 'READ', vElementSecurityCube, vDescendant, vReviewer );
+            vSubsetIndex = vSubsetIndex + 1;
+        END;
+    ENDIF;
+    vElementIndex = vElementIndex + 1;
+    vElement = ElementName ( vPlanApprovalDimension, vPlanApprovalHierarchy, vElementIndex );
+END;
+
+SecurityRefresh;
+#endregion

@@ -1,0 +1,6 @@
+#region Prolog
+
+vDimension = 'Dimension1';
+DimensionElementInsertDirect ( vDimension, '', 'New Element', 'N' );
+
+#endregion

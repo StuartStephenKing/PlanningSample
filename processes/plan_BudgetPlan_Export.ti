@@ -1,0 +1,21 @@
+#region Prolog
+
+vCube = 'plan_BudgetPlan';
+vMDX = 'SELECT ' | pSet1 | '*' | pSet2 | '*' | pSet3 | '*' | pSet4 | '*' | pSet5 | '*' | pSet6 | '*' | pSet7 | ' ON 0 FROM [' | vCube | ']';
+
+ASCIIOutput ( './model_upload/mdxDebug.csv', vMDX );
+
+vView = 'exportView';
+ViewCreateByMDX ( vCube, vView, vMDX, 1 );
+DataSourceType = 'VIEW';
+DatasourceNameForServer = vCube;
+DatasourceCubeview = vView;
+
+
+#endregion
+#region Data
+
+ASCIIOutput ( './model_upload/exports/export.csv', v1, v2, v3, v4, v5, v6, v7 );
+
+
+#endregion

@@ -1,0 +1,15 @@
+#region Prolog
+
+vCube = 'plan_BudgetPlan';
+vDataReservationMap = '';
+vDimIndex = 1;
+vDim = TABDIM ( vCube, vDimIndex );
+WHILE ( vDim @<> '' );
+    IF ( vDimIndex < CubeDimensionCountGet ( vCube ) );
+        vDataReservationMap = vDataReservationMap | '|';
+    ENDIF;
+    vDimIndex = vDimIndex + 1;
+    vDim = TABDIM ( vCube, vDimIndex );
+END;
+CubeDataReservationReleaseAll ( vCube, '', vDataReservationMap );
+#endregion

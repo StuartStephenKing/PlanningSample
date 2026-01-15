@@ -1,0 +1,7 @@
+#region Prolog
+
+# Repeat this section for each cube used for contribution in the plan
+vCube = 'plan_BudgetPlan';
+ExecuteProcess( 'Plans_DeactivateTaskCube', 'pPlan', pPlan, 'pTask', pTask, 'pPrefix', '}Plans', 'pCube', vCube );
+
+#endregion

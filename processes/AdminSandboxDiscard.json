@@ -1,0 +1,20 @@
+{
+	"@type":"Process",
+	"Name":"AdminSandboxDiscard",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"AdminSandboxDiscard.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pSandbox",
+			"Prompt":"",
+			"Value":"Sandbox1",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

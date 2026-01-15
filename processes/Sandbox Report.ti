@@ -1,0 +1,158 @@
+#region Prolog
+
+vTemp = 1;
+vNow = NumberToString( NOW );
+sourceViewName = pCube | '_sandbox_'| vNow;
+fullFileName = pDirectory | sourceViewName | '.csv';
+
+vDimCount = CubeDimensionCountGet ( pCube );
+vLastDimension = TABDIM ( pCube, vDimCount );
+
+IF ( ViewExists ( pCube, sourceViewName ) = 1 );
+    ViewDestroy ( pCube, sourceViewName );
+ENDIF;
+ViewCreate ( pCube, sourceViewName, vTemp );
+
+
+i = 1;
+WHILE ( i <= vDimCount );
+    currentDim = TABDIM ( pCube, i );
+    IF ( SubsetExists ( currentDim, sourceViewName ) = 1 );
+        SubsetDestroy ( currentDim, sourceViewName ); 
+    ENDIF;
+    SubsetCreatebyMDX( sourceViewName, '{TM1FILTERBYLEVEL(TM1SUBSETALL([' | currentDim | '].[' | currentDim | ']), 0)}', 1 );
+    ViewRowDimensionSet( pCube, sourceViewName, currentDim, i );
+    ViewSubsetAssign ( pCube, sourceViewName, currentDim, sourceViewName );
+    i = i + 1;
+END;
+
+ViewExtractSkipZeroesSet ( pCube, sourceViewName, 1 );
+ViewExtractSkipRuleValuesSet ( pCube, sourceViewName, 1 );
+ViewExtractSkipCalcsSet ( pCube, sourceViewName, 1 );
+ViewConstruct ( pCube, sourceViewName );
+
+ServerActiveSandboxSet( pSandbox );
+
+DataSourceType='VIEW';
+DatasourceNameForServer=pCube;
+DatasourceCubeview=sourceViewName;
+#endregion
+#region Data
+
+IF ( vDimCount = 2 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ELSEIF ( vDimCount = 3 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2, dim3 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2, dim3 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3  | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2, dim3 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2, dim3 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3  | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ELSEIF ( vDimCount = 4 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4  | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2, dim3, dim4 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2, dim3, dim4 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4  | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ELSEIF ( vDimCount = 5 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5  | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5 | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ELSEIF ( vDimCount = 6 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5, dim6 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5, dim6 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5 | ', ' | dim6  | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5, dim6 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5, dim6 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5 | ', ' | dim6 | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ELSEIF ( vDimCount = 7 );
+    IF ( DTYPE( vLastDimension, dim7 ) @= 'N' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5, dim6, dim7 );
+        SetUseActiveSandboxProperty ( 1 );
+        sandboxValueN = CellGetN ( pCube, dim1, dim2, dim3, dim4, dim5, dim6, dim7 );
+        IF ( baseValueN <> sandboxValueN );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5 | ', ' | dim6 | ', ' | dim7 | ' Base: ' | NumberToString ( baseValueN ) | ', Sandbox: ' | NumberToString( sandboxValueN ) );
+        ENDIF;
+    ELSEIF ( DTYPE( vLastDimension, dim7 ) @= 'S' );
+        SetUseActiveSandboxProperty ( 0 );
+        baseValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5, dim6, dim7 );
+        SetUseActiveSandboxProperty ( 1 );
+        
+        sandboxValueS = CellGets ( pCube, dim1, dim2, dim3, dim4, dim5, dim6, dim7 );
+        IF ( baseValueS @<> sandboxValueS );
+            ASCIIOutput ( fullFileName, 'Cell: ' | dim1 | ', ' | dim2 | ', ' | dim3 | ', ' | dim4 | ', ' | dim5 | ', ' | dim6 | ', ' | dim7 | ' Base: ' | baseValueS | ', Sandbox: ' | sandboxValueS);
+        ENDIF;
+    ENDIF;
+ENDIF;
+
+#endregion

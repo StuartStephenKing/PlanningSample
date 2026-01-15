@@ -1,0 +1,4 @@
+#region Prolog
+
+ServerSandboxDiscardAllChanges( pSandbox );
+#endregion

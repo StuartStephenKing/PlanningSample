@@ -1,0 +1,91 @@
+#region Prolog
+
+vNow = TIMST (NOW(), '\Y-\m-\d \h:\i:\s' );
+
+#vUser = TM1User();
+
+vPlanStateCube = pPrefix | '_' | pPlan | '_State';
+vPlanTaskDimension = pPrefix | '_' | pPlan | '_Tasks';
+vPlanControlCube = pPrefix;
+vOriginalApprovalDimension = CELLGETS ( '}Plans', pPlan , 'Dimension' );
+vPlanApprovalDimension = pPrefix | '_' | pPlan | '_Approval';
+vPlanApprovalHierarchy = vPlanApprovalDimension;
+vPlanApprovalSubset = 'Default';
+vUser = CellGetS ( vPlanStateCube, pMember, pTask, 'Owner' );
+vOwnershipNode = CellGetS ( vPlanStateCube, pMember, pTask, 'TakeOwnershipNode' );
+
+
+# DataReservation 
+vDataReservationDimensionIndex = 0;
+vDimIndex = 1;
+vDim = TABDIM ( pCube, vDimIndex );
+WHILE ( vDim @<> '' );
+    IF ( vDim @= vOriginalApprovalDimension );
+        vDataReservationDimensionIndex = vDimIndex;
+    ENDIF;
+    vDimIndex = vDimIndex + 1;
+    vDim = TABDIM ( pCube, vDimIndex );
+END;
+
+vDataReservationMapDimensionCount = CubeDimensionCountGet ( pCube );
+vDataReservationMapStart = FILL(  '|', vDataReservationMapDimensionCount - vDataReservationDimensionIndex );
+vDataReservationMapEnd = FILL ( '|',  vDataReservationMapDimensionCount - LONG ( vDataReservationMapStart ) - 1 );
+
+# GlobalSecurityOverlay
+vOverlayCube = '}SecurityOverlayGlobal_' | pCube;
+vOverlayMap = '';
+vDimIndex = 1;
+vDim = TABDIM ( pCube, vDimIndex );
+WHILE ( vDim @<> '' );
+    IF ( vDim @= vOriginalApprovalDimension );
+        vOverlayMap = vOverlayMap | '1';
+    ELSE;
+        vOverlayMap = vOverlayMap | '0';
+    ENDIF;
+    IF ( vDimIndex < CubeDimensionCountGet ( pCube ) );
+        vOverlayMap = vOverlayMap | ':';
+    ENDIF;
+    vDimIndex = vDimIndex + 1;
+    vDim = TABDIM ( pCube, vDimIndex );
+END;
+
+IF ( CubeExists ( vOverlayCube ) = 0);
+    SecurityOverlayCreateGlobalDefault ( pCube, vOverlayMap );
+ENDIF;
+
+vLockSubsetMDX = '{DESCENDANTS([' | vPlanApprovalDimension | '].[' | vPlanApprovalHierarchy | '].[' | vOwnershipNode  | '])}';
+vLockSubset = '_TempLockSubset_' | pMember;
+SubsetCreatebyMDX ( vLockSubset, vLockSubsetMDX, 1 );
+vSubsetSize = HierarchySubsetGetSize(vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset );
+
+vSubsetIndex = 1;
+WHILE ( vSubsetIndex <= vSubsetSize );
+    vElement = HierarchySubsetGetElementName( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset, vSubsetIndex );
+    vElementState = CellGetS ( vPlanStateCube, vElement, pTask, 'State' );
+    IF ( vElementState @= '2' );
+        SecurityOverlayGlobalLockNode ( 0, pCube, vElement );
+    ELSE;
+        SecurityOverlayGlobalLockNode ( 1, pCube, vElement );
+    ENDIF;
+    vSubsetIndex = vSubsetIndex + 1;
+END;
+
+
+vSubsetIndex = 1;
+WHILE ( vSubsetIndex <= vSubsetSize );
+    vElement = HierarchySubsetGetElementName( vPlanApprovalDimension, vPlanApprovalHierarchy, vLockSubset, vSubsetIndex );
+    vElementState = CellGetS ( vPlanStateCube, vElement, pTask, 'State' );
+    IF ( vElementState @= '2' );
+        ASCIIOutput( './model_upload/debug.txt', 'DR Acquire ' | vDataReservationMapStart | vElement | vDataReservationMapEnd );
+        CubeDataReservationAcquire ( pCube, vUser, 1, vDataReservationMapStart | vElement | vDataReservationMapEnd );
+    ELSE;
+        ASCIIOutput( './model_upload/debug.txt', 'DR Release ' | vDataReservationMapStart | vElement | vDataReservationMapEnd );
+        CubeDataReservationRelease ( pCube, vUser, vDataReservationMapStart | vElement | vDataReservationMapEnd );
+    ENDIF;
+    vSubsetIndex = vSubsetIndex + 1;
+END;
+
+
+
+
+#endregion

@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Insert member",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Insert member.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}

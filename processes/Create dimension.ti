@@ -1,0 +1,15 @@
+#region Prolog
+
+vDimension = 'Dimension1';
+DimensionCreate( vDimension );
+
+
+index = 1;
+max = 1000;
+
+WHILE ( index <= max);
+    DimensionElementInsertDirect( vDimension, '', NumberToString( index ), 'N' );
+    index = index + 1;
+END;
+
+#endregion

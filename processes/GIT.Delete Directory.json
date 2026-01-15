@@ -1,0 +1,21 @@
+{
+	"@type":"Process",
+	"Name":"GIT.Delete Directory",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"GIT.Delete Directory.ti",
+	"UIData":"_ParameterConstraints=e30=\f",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDeleteDir",
+			"Prompt":"Directory to delete",
+			"Value":"/git/cubes",
+			"Type":"String"
+		}
+	],
+	"Variables":[]
+}

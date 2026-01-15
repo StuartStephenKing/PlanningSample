@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"GIT.Import",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"GIT.Import.ti",
+	"UIData":"_ParameterConstraints=e30=\f",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[]
+}
