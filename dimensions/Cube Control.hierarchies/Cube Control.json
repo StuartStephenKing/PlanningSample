@@ -1,0 +1,56 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Cube Control",
+	"Elements":
+	[
+		{
+			"Name":"Import",
+			"Type":"String"
+		},
+		{
+			"Name":"Export",
+			"Type":"String"
+		},
+		{
+			"Name":"Clear",
+			"Type":"String"
+		},
+		{
+			"Name":"Transaction Delta",
+			"Type":"String"
+		},
+		{
+			"Name":"Replicate Source Database",
+			"Type":"String"
+		},
+		{
+			"Name":"ParallelDataLoad",
+			"Type":"String"
+		},
+		{
+			"Name":"SplitDimension",
+			"Type":"String"
+		},
+		{
+			"Name":"Last Transaction Datetime",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Migrate Cube",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Rules",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Views",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Data",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

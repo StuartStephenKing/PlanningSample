@@ -1,0 +1,13 @@
+#region Prolog
+
+vGroupIndex = 1;
+vGroup = DIMNM( '}Groups', vGroupIndex );
+WHILE ( vGroup @<> '' );
+    IF ( vGroup @<> 'ADMIN' & vGroup @<> 'DataAdmin' & vGroup @<> 'SecurityAdmin' & vGroup @<> 'OperationsAdmin' );
+        ASCIIOutput ( '^\' | pFile, vGroup, ATTRS( '}Groups', vGroup, '}TM1_DefaultDisplayValue' ) );
+    ENDIF;
+    vGroupIndex = vGroupIndex + 1;
+    vGroup = DIMNM( '}Groups', vGroupIndex );
+END;
+
+#endregion

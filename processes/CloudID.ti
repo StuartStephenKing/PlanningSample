@@ -1,0 +1,16 @@
+#region Prolog
+DimensionElementInsertDirect( '}ClientProperties', '', 'CloudID', 'S' );
+#endregion
+#region Epilog
+vClientIndex = 1;
+vClient = DIMNM ( '}Clients', vClientIndex);
+WHILE ( vClient @<> '' );
+    IF ( SCAN ( 'CAMID("pans:u:', vClient ) = 1 );
+    vCloudID = SUBST ( vClient, 15, LONG ( vClient ) - 14 );
+    vCloudID = SUBST ( vCloudID, 1, LONG ( vCloudID ) - 2 );
+    CellPutS ( vCloudID, '}ClientProperties', vClient, 'CloudID' );
+    ENDIF;
+    vClientIndex = vClientIndex + 1;
+    vClient = DIMNM ( '}Clients', vClientIndex);
+END;
+#endregion

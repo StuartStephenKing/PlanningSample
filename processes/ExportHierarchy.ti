@@ -1,0 +1,26 @@
+#region Prolog
+
+DataSourceType          = 'SUBSET';
+DatasourceNameForServer = pDimension | ':' | pHierarchy;
+DatasourceDimensionSubset = 'All';
+vExportFile = '^/' | pFile;
+
+#endregion
+#region Data
+
+vElementParentCount = ElementParentCount ( pDimension, pHierarchy, v1 ); 
+IF ( vElementParentCount  > 0);
+    vParentIndex = 1;
+    WHILE ( vParentIndex <= vElementParentCount );
+        vParent = ElementParent ( pDimension, pHierarchy, v1, vParentIndex );
+        vElementType = ElementType ( pDimension, pHierarchy, v1 );
+        vWeight = ElementWeight ( pDimension, pHierarchy, vParent, v1 );
+        ASCIIOUTPUT ( vExportFile, v1, vParent, NumberToString ( vWeight ), vElementType );
+        vParentIndex = vParentIndex + 1;
+    END;
+ELSE;
+    vElementType = ElementType ( pDimension, pHierarchy, v1 );
+    ASCIIOUTPUT ( vExportFile, v1, v1, '0', vElementType );
+ENDIF;
+
+#endregion

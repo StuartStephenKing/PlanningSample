@@ -1,0 +1,41 @@
+{
+	"@type":"Process",
+	"Name":"Import.Groups",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Import.Groups.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFile",
+			"Prompt":"",
+			"Value":"client.csv",
+			"Type":"String"
+		}
+	],
+	"Variables":
+	[
+		{
+			"Name":"v1",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		},
+		{
+			"Name":"v2",
+			"Type":"String",
+			"Position":2,
+			"StartByte":0,
+			"EndByte":0
+		}
+	],
+	"UID": "1783108180000",
+	"VariablesUIData": [
+		"VarType=32\fColType=827\f",
+		"VarType=32\fColType=827\f"
+	]
+}

@@ -1,0 +1,149 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile , 'Migrating attributes for hierarchy: ' | pDimension | ':' | pHierarchy );
+
+
+vExportDir = 'Migration';
+vExportFile     = pDimension | '_' | pHierarchy | '_attr.csv';
+
+vCube = '}ElementAttributes_' | pDimension;
+vView = '__ExportAttributes_' | pHierarchy;
+IF ( CubeExists( vCube ) = 0 );
+    ProcessBreak;
+ENDIF;
+
+vMDX = 'SELECT 
+   {
+      [}ElementAttributes_' | pDimension | '].[}ElementAttributes_' | pDimension | '].MEMBERS
+   } ON 0, 
+   {
+      [' | pDimension | '].[' | pHierarchy | '].MEMBERS
+   } ON 1 
+FROM
+   [}ElementAttributes_' | pDimension | ']';
+
+ViewCreateByMDX( vCube, vView, vMDX, 1 );
+DataSourceType          = 'VIEW';
+DatasourceNameForServer = vCube;
+DatasourceCubeview      = vView;
+
+vRowCount = 0;
+
+#endregion
+#region Data
+
+vAttributeType = ElementType ( '}ElementAttributes_' | pDimension, '}ElementAttributes_' | pDimension, v1 );
+ASCIIOUTPUT ( vExportDir | '/' | vExportFile, vAttributeType, v1, v2, value );
+vRowCount = vRowCount + 1;
+
+#endregion
+#region Epilog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+
+IF ( vRowCount > 0 );
+    vJsonImportProcess = '{
+    "Process": {
+        "Name":"Migrate.Attributes.' | pDimension | '_' | pHierarchy | '",
+        "DataProcedure": "",
+        "DataSource": {
+            "asciiDecimalSeparator": ".",
+            "asciiDelimiterChar": ",",
+            "asciiDelimiterType": "Character",
+            "asciiHeaderRecords": 0,
+            "asciiQuoteCharacter": "\"",
+            "asciiThousandSeparator": ",",
+            "dataSourceNameForServer": "' | pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 )  | '/Contents(''Files'')/Contents(''' | vExportDir | ''')/Contents(''' | URLEncode ( '' | vExportFile | '' ) | ''')/Content",
+            "Type": "ASCII"
+        },
+        "EpilogProcedure": "",
+        "HasSecurityAccess": false,
+        "MetadataProcedure": "
+            IF ( vType @= ''AA'' );
+                IF ( DIMIX ( vAttributesDimension, vAttribute ) = 0);
+                    ATTRINSERT ( pDimension, '''', vAttribute ,''A'' );
+                ENDIF;
+                ATTRPUTS ( value, pDimension, vElement, vAttribute );
+            ELSEIF ( vType @= ''AS'' );
+                IF ( DIMIX ( vAttributesDimension, vAttribute ) = 0);
+                    ATTRINSERT ( pDimension, '''', vAttribute ,''S'' );
+                ENDIF;
+                ATTRPUTS (value, pDimension, vElement, vAttribute);
+            ELSEIF ( vType @= ''AN'' );
+                IF ( DIMIX ( vAttributesDimension, vAttribute ) = 0);
+                    ATTRINSERT ( pDimension, '''', vAttribute ,''N'' );
+                ENDIF;
+                ATTRPUTN ( StringToNumber(value), pDimension, vElement, vAttribute );
+            ENDIF;",
+        "Parameters": [
+            {
+                "Name": "pDimension",
+                "Prompt": "",
+                "Type": "String",
+                "Value": "' | pDimension | '"
+            },
+            {
+                "Name": "pHierarchy",
+                "Prompt": "",
+                "Type": "String",
+                "Value": "' | pHierarchy | '"
+            }
+        ],
+       "PrologProcedure": "
+           vPAWBaseUrl = ''' | pSourceURL | '/api/' | pSourceTenant | '/v0'';
+           vUrl = vPAWBaseURL | ''/rolemgmt/v1/users/me'';
+           ExecuteHttpRequest ( ''GET'', vUrl, ''-h Authorization: basic '' | Base64Encode( ''apikey:'' | ''' | pSourceAPIKey | ''' ) );
+           vResponseCode = HttpResponseGetStatusCode();
+           vResponseBody  = HttpResponseGetBody();
+           ASCIIOutput ( ''debug.txt'', NumberToString( vResponseCode ), vResponseBody );
+           IF ( vResponseCode <> 200 );
+               ProcessError();
+           ENDIF;
+           vAttributesDimension = ''}ElementAttributes_'' | pDimension;",
+       "Variables": [
+            {
+                "Name": "vType",
+                "Position": 1,
+                "Type": "String"
+            },
+            {
+                "Name": "vAttribute",
+                "Position": 2,
+                "Type": "String"
+            },
+            {
+                "Name": "vElement",
+                "Position": 3,
+                "Type": "String"
+            },
+            {
+                "Name": "value",
+                "Position": 4,
+                "Type": "String"
+            }
+        ]
+    }
+}'; 
+
+    # POST Extract process to remote database
+    vRemoteDatabaseProcessesUrl = pTargetURL | '/api/' | pTargetTenant | '/v0/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | 'ExecuteProcessWithReturn?$expand=*';
+    IF ( pDebug @= 'Y' );
+        #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+        #ASCIIOutput ( pLogFile, vJsonImportProcess );
+    ENDIF;
+    ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  vJsonImportProcess );
+    vResponseCode = HttpResponseGetStatusCode();
+    vResponseBody = HttpResponseGetBody();
+    IF ( pDebug @= 'Y' );
+        #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ENDIF;
+    IF ( vResponseCode < 200 % vResponseCode >= 300 );
+        ASCIIOutput ( pLogFile , 'Error migrating attributes for hierarchy: ' | pDimension | ':' | pHierarchy );
+    ELSE;
+        ASCIIOutput ( pLogFile , 'Attribute migration for hierarchy: ' | pDimension | ':' | pHierarchy | ' completed' );
+    ENDIF;
+ENDIF;
+
+
+#endregion

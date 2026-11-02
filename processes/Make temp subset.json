@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"Make temp subset",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Make temp subset.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "177274884500010"
+}

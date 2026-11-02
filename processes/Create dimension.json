@@ -1,0 +1,39 @@
+{
+	"@type":"Process",
+	"Name":"Create dimension",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Create dimension.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDimension",
+			"Prompt":"",
+			"Value":"BigDim",
+			"Type":"String"
+		},
+		{
+			"Name":"pNumberOfElements",
+			"Prompt":"",
+			"Value":80000,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"pElementNameLength",
+			"Prompt":"",
+			"Value":12,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"pParentElement",
+			"Prompt":"",
+			"Value":"Y",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "17727488450006"
+}

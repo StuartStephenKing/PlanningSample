@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Migrate.Dimension",
+	"Hierarchies@Code.links":
+	[
+		"Migrate.Dimension.hierarchies/Migrate.Dimension.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Migrate.Dimension')/Hierarchies('Migrate.Dimension')"
+	}
+}

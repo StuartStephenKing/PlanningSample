@@ -1,0 +1,26 @@
+{
+	"@type":"Process",
+	"Name":"Test process 1",
+	"HasSecurityAccess":false,
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFileName",
+			"Prompt":"File-Name",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pNumber",
+			"Prompt":"",
+			"Value":123,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":[],
+	"UID": "1780327502000"
+}

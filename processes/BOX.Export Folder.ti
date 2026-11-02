@@ -1,0 +1,61 @@
+#region Prolog
+vProcessName = GetProcessName ();
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vLogFile     = '/Process logs/' | vProcessName | '_' | vNow | '.log';
+StringGlobalVariable ( 'vBearerToken' );
+
+#Create folder in BOX
+vBOXURL = 'https://api.box.com/2.0/folders';
+IF ( pDebug @= 'Y' );
+    ASCIIOUTPUT ( vLogFile, 'POST: ' | vBOXURL);
+ENDIF;
+
+ExecuteHttpRequest ( 'POST', vBOXURL, '-k', '-h Authorization:Bearer ' | vBearerToken, '-d {"name": "Planning Sample", "parent":{"id": "' | pBoxParentFolderID | '"}}');
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    ASCIIOUTPUT( vLogFile, NumberToString ( vResponseCode ), vResponseBody );
+ENDIF;
+
+IF ( vResponseCode = 409 );
+    # Folder alreayd exists
+    vContextInfo = JsonGet ( vResponseBody, 'context_info' ); 
+    vConflicts = JsonGet ( vContextInfo, 'conflicts' ); 
+    vJsonEntry     = JsonGet ( vConflicts, 0 );
+    vFolderID = JsonGet ( vJsonEntry, 'id' ); 
+
+    ExecuteProcess( 'BOX.Delete Folder',
+                    'pDebug', pDebug,
+                    'vBOXFolderID', JsonToString ( vFolderID ) );    
+ELSEIF ( vResponseCode <> 201 );
+    ProcessQuit;
+ELSE;
+    vFolderID = JsonToString ( vResponseBody, 'id' );
+ENDIF;
+
+index = 1;
+vCube = DIMNM ( '}Cubes', index );
+WHILE ( vCube @<> '' );
+    IF ( SUBST ( vCube, 1, 1) @<> '}' & vCube @<> 'Model Control' & vCube @<> 'Cube Control'  );
+        IF ( LOWER ( CellGetS( 'Cube Control', vCube, 'Export' ) ) @= 'y' );
+            IF ( pDebug @= 'Y' );
+                ASCIIOutput ( vLogFile, vCube );
+            ENDIF;
+
+            ExecuteProcess( 'BOX.Export File',
+                            'pCube', vCube,
+                            'pRemoveTempFiles','N',
+                            'pDebug', pDebug,
+                            'pBoxFolderID', JsonToString ( vFolderID ) );
+        ENDIF;
+    ENDIF;
+    index = index + 1;
+    vCube = DIMNM ( '}Cubes', index );
+END; 
+
+#endregion
+#region Epilog
+
+#CellPutS ( vNewFolderID, 'ModelControl', 'BOX Last Export Folder ID', 'Value' );
+#ExecuteProcess ( 'Slack.Message Send', 'pMessage', 'Export complete!  BOX Folder: https://ibm.ent.box.com/folder/' | vNewFolderID );
+#endregion

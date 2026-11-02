@@ -1,0 +1,48 @@
+#region Prolog
+vProcessName = GetProcessName ();
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vLogFile     = '/Process logs/' | vProcessName | '_' | vNow | '.log';
+StringGlobalVariable ( 'vBearerToken' );
+
+#Read Folder
+vURL = 'https://api.box.com/2.0/folders/' | vBOXFolderID;
+ASCIIOUTPUT( vLogFile, 'GET ' | vURL);
+ExecuteHttpRequest( 'GET', vURL, '-k', '-h Authorization:Bearer ' | vBearerToken);
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    ASCIIOUTPUT( vLogFile, NumberToString( vResponseCode ) | ' ' | vResponseBody);
+ENDIF;
+
+IF ( vResponseCode <> 200 );
+    ProcessQuit;
+ELSE;
+    vJson_item_collection = JsonGet( vResponseBody, 'item_collection' ); 
+    vJsonArraySize        = JsonSize ( vJson_item_collection, 'entries' );
+    vJson_entries         = JsonGet( vJson_item_collection, 'entries' ); 
+    vJarrayIndex          = 0;
+    WHILE ( vJarrayIndex < vJsonArraySize );
+        vJsonEntry     = JsonGet ( vJson_entries, vJarrayIndex  );
+        vJsonEntryID   = JsonToString ( vJsonEntry, 'id' );
+        vJsonEntryType = JsonToString ( vJsonEntry, 'type' );
+        vJsonEntryname = JsonToString ( vJsonEntry, 'name' );
+        IF ( JsonToString ( vJsonEntryType ) @= 'folder' );
+            vURL = 'https://api.box.com/2.0/folders/' | vJsonEntryID | '?recursive=true';
+        ELSE;
+            vURL = 'https://api.box.com/2.0/files/' | vJsonEntryID;
+        ENDIF;
+        
+        IF ( pDebug @= 'Y' );
+            ASCIIOUTPUT( vLogFile, 'DELETE ' | vURL);
+        ENDIF;
+        ExecuteHttpRequest( 'DELETE', vURL, '-k', '-h Authorization:Bearer ' | vBearerToken );
+        vResponseCode = HttpResponseGetStatusCode();
+        vResponseBody = HttpResponseGetBody();
+        IF ( pDebug @= 'Y' );
+            ASCIIOUTPUT( vLogFile, NumberToString( vResponseCode ) | ' ' | vResponseBody);
+        ENDIF;
+        vJarrayIndex = vJarrayIndex + 1;
+    END;
+ENDIF;
+
+#endregion

@@ -1,0 +1,14 @@
+{
+	"@type":"Process",
+	"Name":"Create folder",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Create folder.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "1784839224000",
+	"VariablesUIData": []
+}

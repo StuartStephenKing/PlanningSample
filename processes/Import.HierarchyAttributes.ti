@@ -1,0 +1,27 @@
+#region Prolog
+
+vAttributesDimension = '}ElementAttributes_' | pDimension;
+DataSourceType          = 'CHARACTERDELIMITED';
+DatasourceNameForServer = '^\' | pFile;
+
+#endregion
+#region Metadata
+
+IF(vType @= 'AA');
+   IF(DIMIX(vAttributesDimension, vAttribute) = 0);
+       ATTRINSERT(pDimension, '', vAttribute ,'A');
+   ENDIF;
+   ElementAttrPutS(value, pDimension, pHierarachy, vElement, vAttribute);
+ELSEIF(vType @= 'AS');
+   IF(DIMIX(vAttributesDimension, vAttribute) = 0);
+       ATTRINSERT(pDimension, '', vAttribute ,'S');
+   ENDIF;
+   ElementAttrPutS (value, pDimension, pHierarachy, vElement, vAttribute);
+ELSEIF(vType @= 'AN');
+   IF(DIMIX(vAttributesDimension, vAttribute) = 0);
+       ATTRINSERT(pDimension, '', vAttribute ,'N');
+   ENDIF;
+   ElementAttrPutN(StringToNumber(value), pDimension, pHierarachy, vElement, vAttribute);
+ENDIF;
+
+#endregion

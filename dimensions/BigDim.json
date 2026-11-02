@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"BigDim",
+	"Hierarchies@Code.links":
+	[
+		"BigDim.hierarchies/BigDim.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('BigDim')/Hierarchies('BigDim')"
+	}
+}

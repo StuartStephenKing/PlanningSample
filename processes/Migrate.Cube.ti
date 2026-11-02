@@ -1,0 +1,62 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile , 'Migrating cube: ' | pCube );
+
+
+# Process configuration
+vSourcePAURL = pSourceURL | '/api/' | pSourceTenant | '/v0';
+vTargetPAURL = pTargetURL | '/api/' | pTargetTenant | '/v0';
+
+vCubeJSON = '{"Name":"' | pCube | '"}';
+
+vCubeDimensionsJsonArray = '[]';
+vDimensionIndex = 1;
+vDimension = TABDIM ( pCube, vDimensionIndex );
+WHILE ( vDimension @<> '' );
+    vCubeDimensionsJsonArray = JsonAdd ( vCubeDimensionsJsonArray, vDimensionIndex - 1, StringToJson ( 'Dimensions(''' | vDimension | ''')' ) );
+    vDimensionIndex = vDimensionIndex + 1;
+    vDimension = TABDIM ( pCube, vDimensionIndex );
+END;
+
+vCubeJSON = JsonAdd ( vCubeJSON, 'Dimensions@odata.bind', JsonToString ( vCubeDimensionsJsonArray ) );
+
+# Remove existing cube
+IF ( pReplace @= 'Y' );
+    vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | URLEncode ( 'Cubes(''' | pCube | ''')' );
+    ExecuteHttpRequest ( 'DELETE', vRemoteDatabaseProcessesUrl,  '-k' );
+    vResponseCode = HttpResponseGetStatusCode();
+    vResponseBody = HttpResponseGetBody();
+    IF ( pDebug @= 'Y' );
+        #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ENDIF;
+    # IF ( vResponseCode <> 204 );
+    #     ProcessError;
+    # ENDIF;
+ENDIF;
+
+# Create Cube 
+vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/Cubes';
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+    #ASCIIOUTPUT ( pLogFile, vCubeJSON );
+ENDIF;
+ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' | vCubeJSON );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+
+IF ( vResponseCode < 200 % vResponseCode >= 300 );
+    ASCIIOutput ( pLogFile , 'Error migrating cube: ' | pCube );
+ELSE;
+    ASCIIOutput ( pLogFile , 'Cube: ' | pCube | ' migration complete' );
+ENDIF;
+
+
+#endregion
+#region Epilog
+
+
+#endregion

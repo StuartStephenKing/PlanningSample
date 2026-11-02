@@ -1,0 +1,22 @@
+{
+	"@type":"Process",
+	"Name":"Export.Groups",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Export.Groups.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFile",
+			"Prompt":"",
+			"Value":"groups.csv",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1783107980000",
+	"VariablesUIData": []
+}

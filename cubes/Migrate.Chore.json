@@ -1,0 +1,14 @@
+{
+	"@type":"Cube",
+	"Name":"Migrate.Chore",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('}Chores')"
+		},
+		{
+			"@id":"Dimensions('Migrate.Chore')"
+		}
+	],
+	"Views@Code.links":[]
+}

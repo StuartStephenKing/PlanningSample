@@ -1,0 +1,12 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Migrate.Chore",
+	"Elements":
+	[
+		{
+			"Name":"Migrate",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

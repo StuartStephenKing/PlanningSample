@@ -1,0 +1,15 @@
+{
+	"@type":"Cube",
+	"Name":"Model Control",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('Model Control')"
+		},
+		{
+			"@id":"Dimensions('Control Value')"
+		}
+	],
+	"Rules@Code.link":"Model Control.rules",
+	"Views@Code.links":[]
+}

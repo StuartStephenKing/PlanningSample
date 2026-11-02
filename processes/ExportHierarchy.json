@@ -1,0 +1,45 @@
+{
+	"@type":"Process",
+	"Name":"ExportHierarchy",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"ExportHierarchy.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFile",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pDimension",
+			"Prompt":"",
+			"Value":"plan_department",
+			"Type":"String"
+		},
+		{
+			"Name":"pHierarchy",
+			"Prompt":"",
+			"Value":"plan_department",
+			"Type":"String"
+		}
+	],
+	"Variables":
+	[
+		{
+			"Name":"v1",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		}
+	],
+	"UID": "1786801808000",
+	"VariablesUIData": [
+		"VarType=32\fColType=827\f"
+	]
+}

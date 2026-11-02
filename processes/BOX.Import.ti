@@ -1,0 +1,8 @@
+#region Prolog
+
+ExecuteProcess( 'BOX.Authenticate' );
+ExecuteProcess( 'BOX.Import Folder',
+    'pDebug', 'N' );
+
+
+#endregion

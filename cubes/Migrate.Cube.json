@@ -1,0 +1,14 @@
+{
+	"@type":"Cube",
+	"Name":"Migrate.Cube",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('}Cubes')"
+		},
+		{
+			"@id":"Dimensions('Migrate.Cube')"
+		}
+	],
+	"Views@Code.links":[]
+}

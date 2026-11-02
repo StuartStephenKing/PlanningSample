@@ -1,0 +1,57 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Migrating subsets from hierarchy: ' | pDimension | ':' | pHierarchy );
+
+vExportFile = pExportDir | '/Dimensions/' | pDimension | '/' | pHierarchy | '/Subsets/';
+
+
+vSubsetIndex = 1;
+vSubset = ElementName ( '}Subsets_' | pDimension, '}Subsets_' | pHierarchy, vSubsetIndex );
+WHILE ( vSubset @<> '' );
+    #Read the local process
+    vProcessURL = pSourceURL | '/api/' | pSourceTenant | '/v0' | '/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/Dimensions(''' | URLEncode ( pDimension ) | ''')' | '/Hierarchies(''' | URLEncode ( pHierarchy ) | ''')' | '/Subsets(''' | URLEncode ( vSubset ) | ''')?$expand=Elements($select=Name)';
+    ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json' );
+    vResponseCode = HttpResponseGetStatusCode();
+    vResponseBody = HttpResponseGetBody();
+    IF ( pDebug @= 'Y' );
+        #ASCIIOUTPUT ( vLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ENDIF;
+    IF ( vResponseCode <> 200 );
+        ASCIIOutput ( pLogFile, 'Migrating subset from hierarchy: ' | pDimension | ':' | pHierarchy | ' failed' );
+        ProcessError();
+    ENDIF;
+
+    # Modify the susbet JSON
+    vSubsetJSON = vResponseBody;
+    vSubsetJSON = JsonRemove  ( vSubsetJSON, '@odata.context' );
+    vSubsetJSON = JsonRemove (  vSubsetJSON, '@odata.etag' );
+
+    vExpression = JsonToString ( vSubsetJSON, 'Expression' );
+    IF ( vExpression @= 'null' );
+        vSubsetJSON = JsonRemove (  vSubsetJSON, 'Expression' );
+
+        vSourceSubsetElementsJSONArray = JsonGet ( vSubsetJSON, 'Elements' );
+        vTargetSubsetElementsJSONArray = '[]';
+        vSourceSubsetElementsIndex = 0;
+        WHILE ( vSourceSubsetElementsIndex < JsonSize ( vSourceSubsetElementsJSONArray ) );
+            vSourceSubsetElementJson = JsonGet ( vSourceSubsetElementsJSONArray, vSourceSubsetElementsIndex );
+            vSourceSubsetElement = JsonToString ( vSourceSubsetElementJson, 'Name' );
+            vTargetSubsetElementsJSONArray = JsonAdd ( vTargetSubsetElementsJSONArray, vSourceSubsetElementsIndex, StringToJson ( 'Dimensions(''' | pDimension | ''')/Hierarchies(''' | pHierarchy | ''')/Elements(''' | vSourceSubsetElement | ''')' ) );
+            vSourceSubsetElementsIndex = vSourceSubsetElementsIndex + 1;
+        END;
+        vSubsetJSON = JsonAdd ( vSubsetJSON, 'Elements@odata.bind', JsonToString ( vTargetSubsetElementsJSONArray ) );
+    ENDIF;
+    
+    vSubsetJSON = JsonRemove (  vSubsetJSON, 'Elements' );
+    
+    ASCIIOutput ( vExportFile | vSubset | '.json', vSubsetJSON );
+
+
+    vSubsetIndex = vSubsetIndex + 1;
+    vSubset = ElementName ( '}Subsets_' | pDimension, '}Subsets_' | pHierarchy, vSubsetIndex );
+END;
+
+
+
+#endregion

@@ -1,0 +1,77 @@
+{
+	"@type":"Process",
+	"Name":"Sample Process for Action Button",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Sample Process for Action Button.ti",
+	"DataSource":
+	{
+		"Type":"ASCII",
+		"dataSourceNameForServer":"defaults.env",
+		"dataSourceNameForClient":"defaults.env",
+		"asciiHeaderRecords":0,
+		"asciiQuoteCharacter":"\"",
+		"asciiDecimalSeparator":".",
+		"asciiThousandSeparator":",",
+		"asciiDelimiterType":"Character",
+		"asciiDelimiterChar":":"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"p1",
+			"Prompt":"",
+			"Value":"Hello",
+			"Type":"String"
+		},
+		{
+			"Name":"p2",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"p3",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"p4",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"p5",
+			"Prompt":"",
+			"Value":123,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"p6",
+			"Prompt":"",
+			"Value":0,
+			"Type":"Numeric"
+		},
+		{
+			"Name":"p7",
+			"Prompt":"",
+			"Value":0,
+			"Type":"Numeric"
+		}
+	],
+	"Variables":
+	[
+		{
+			"Name":"v1",
+			"Type":"String",
+			"Position":1,
+			"StartByte":0,
+			"EndByte":0
+		}
+	],
+	"UID": "1790695804000",
+	"VariablesUIData": [
+		"VarType=32\fColType=827\f"
+	]
+}

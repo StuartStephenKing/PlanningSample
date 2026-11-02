@@ -1,0 +1,63 @@
+#region Prolog
+
+vDimension = 'plan_time';
+vYearIndex = pStartYear;
+WHILE ( vYearIndex <= pEndYear );
+    vYear = NumberToString ( vYearIndex );
+    DimensionElementInsertDirect ( vDimension, '', vYear, 'C' );
+    vQuarterIndex = 1;
+    vQuater = 'Q' | NumberToString( vQuarterIndex ) | '-' | vYear;
+    WHILE ( vQuarterIndex <= 4 );
+        DimensionElementInsertDirect ( vDimension, '', vQuater, 'C' );
+        DimensionElementComponentAddDirect ( vDimension, vYear, vQuater, 1 );
+        vMonthIndex = 1;
+        WHILE ( vMonthIndex <= 3 );
+            IF ( vQuarterIndex = 1 );
+                IF ( vMonthIndex = 1 ); 
+                    vMonth = 'Jan' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 2 );
+                    vMonth = 'Feb' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 3 );
+                    vMonth = 'Mar' | '-' | vYear;
+                ENDIF;
+            ELSEIF ( vQuarterIndex = 2 );
+                IF ( vMonthIndex = 1 );
+                    vMonth = 'Apr' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 2 );
+                    vMonth = 'May' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 3 );
+                    vMonth = 'Jun' | '-' | vYear;
+                ENDIF;
+            ELSEIF ( vQuarterIndex = 3 );
+                IF ( vMonthIndex = 1 );
+                    vMonth = 'Jul' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 2 );
+                    vMonth = 'Aug' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 3 );
+                    vMonth = 'Sep' | '-' | vYear;
+                ENDIF;
+            ELSEIF ( vQuarterIndex = 4 );
+                IF ( vMonthIndex = 1 );
+                    vMonth = 'Oct' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 2 );
+                    vMonth = 'Nov' | '-' | vYear;
+                ELSEIF ( vMonthIndex = 3 );
+                    vMonth = 'Dec' | '-' | vYear;
+                ENDIF;
+            ENDIF;
+            DimensionElementInsertDirect ( vDimension, '', vMonth, 'N' );
+            DimensionElementComponentAddDirect ( vDimension, vQuater, vMonth, 1 );
+            vMonthIndex = vMonthIndex + 1;
+            vMonth = 'Q' | NumberToString( vQuarterIndex ) | '-' | vYear;
+        END; 
+        vQuarterIndex = vQuarterIndex + 1;
+        vQuater = 'Q' | NumberToString( vQuarterIndex ) | '-' | vYear;
+    END;   
+
+    vYearIndex = vYearIndex + 1;
+END;
+
+
+
+
+#endregion

@@ -1,0 +1,22 @@
+{
+	"@type":"Process",
+	"Name":"Upload File-Non Admin",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Upload File-Non Admin.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFile",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1784838564000",
+	"VariablesUIData": []
+}

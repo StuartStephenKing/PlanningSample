@@ -1,0 +1,366 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Migrating data from cube: ' | pCube );
+
+
+vExportDir = 'Migration';
+vExportFile     = pCube | '.csv';
+vView       = '__Export';
+
+vDimCount = CubeDimensionCountGet ( pCube );
+vIndex    = 1;
+vDim      = TABDIM ( pCube, vIndex );
+VIEWCREATE ( pCube, vView, 1 );
+WHILE (vDim @<> '');
+    ViewColumnDimensionSet( pCube, vView, vDim, vIndex );
+    IF ( SubsetExists( vDim, vView ) = 0 );
+        subsetMDX = 'TM1FILTERBYLEVEL({{[' | vDim | '].[' | vDim | '].MEMBERS}}, 0)';
+        SubsetCreateByMDX ( vView, subsetMDX, vDim, 1 );
+    ENDIF;
+    ViewSubsetAssign ( pCube, vView, vDim, vView );
+    vIndex = vIndex + 1;
+    vDim   = TABDIM(pCube, vIndex);
+END;
+
+DataSourceType='VIEW';
+DatasourceNameForServer=pCube;
+DatasourceCubeview=vView;
+
+ViewExtractSkipCalcsSet ( pCube, vView, 1 );
+ViewExtractSkipRuleValuesSet ( pCube, vView, 1 );
+ViewExtractSkipZeroesSet ( pCube, vView, 1 );
+
+#endregion
+#region Data
+
+IF ( vDimCount = 2 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3 );
+ELSEIF ( vDimCount = 3 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4 );
+ELSEIF ( vDimCount = 4 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5 );
+ELSEIF ( vDimCount = 5 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6 );
+ELSEIF ( vDimCount = 6 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7 );
+ELSEIF ( vDimCount = 7 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8 );
+ELSEIF ( vDimCount = 8 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+ELSEIF ( vDimCount = 9 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+ELSEIF ( vDimCount = 10 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+ELSEIF ( vDimCount = 11 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+ELSEIF ( vDimCount = 12 );
+   ASCIIOUTPUT ( vExportDir | '/' | vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+ENDIF;
+
+
+#endregion
+#region Epilog
+
+ASCIIOutputOpen( pLogFile, 1 );
+
+
+# Authenticate
+# vUrl = pTargetURL | '/api/' | pTargetTenant | '/v0/rolemgmt/v1/users/me';
+# ExecuteHttpRequest ( 'GET', vUrl, '-h Authorization: basic ' | Base64Encode( 'apikey:' | pTargetAPIKey ) );
+# vResponseCode = HttpResponseGetStatusCode();
+# vResponseBody  = HttpResponseGetBody();
+# IF ( vResponseCode <> 200 );
+#     ProcessError();
+# ENDIF; 
+
+
+
+# Import process
+vJsonImportProcess = '{
+    "Process": {
+        "Name": "Migrate.Data.' | pCube |'",
+        "DataProcedure": "",
+        "DataSource": {
+            "asciiDecimalSeparator": ".",
+            "asciiDelimiterChar": ",",
+            "asciiDelimiterType": "Character",
+            "asciiHeaderRecords": 0,
+            "asciiQuoteCharacter": "\"",
+            "asciiThousandSeparator": ",",
+            "dataSourceNameForServer": "' | pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 ) | '/Contents(''Files'')/Contents(''' | vExportDir | ''')/Contents(''' | URLEncode ( '' | vExportFile | '' ) | ''')/Content",
+            "Type": "ASCII"
+        },
+        "EpilogProcedure": "",
+        "HasSecurityAccess": false,
+        "Parameters": [
+            {
+                "Name": "pCube",
+                "Prompt": "",
+                "Type": "String",
+                "Value": "' | pCube | '"
+            },
+            {
+                "Name": "pDimensionCount",
+                "Prompt": "",
+                "Type": "Numeric",
+                "Value": ' | NumberToString ( vDimCount ) | '
+            }
+        ],
+       "PrologProcedure": "
+                vLastDim = TABDIM ( pCube, pDimensionCount );
+                IF ( CubeExists ( pCube ) = 1 );
+                    vCurrentCubeDimensionsCount = CubeDimensionCountGet( pCube );
+                    IF ( vCurrentCubeDimensionsCount <> pDimensionCount );
+                        ProcessQuit;
+                    ENDIF;
+                    CubeClearData( PCube );
+                ENDIF;
+
+                vPAWBaseUrl = ''' | pSourceURL | '/api/' | pSourceTenant | '/v0'';
+                vUrl = vPAWBaseURL | ''/rolemgmt/v1/users/me'';
+                ExecuteHttpRequest ( ''GET'', vUrl, ''-h Authorization: basic '' | Base64Encode( ''apikey:'' | ''' | pSourceAPIKey | ''' ) );
+                vResponseCode = HttpResponseGetStatusCode();
+                vResponseBody  = HttpResponseGetBody();
+                ASCIIOutput ( ''debug.txt'', NumberToString( vResponseCode ), vResponseBody );
+                IF ( vResponseCode <> 200 );
+                   ProcessError();
+                ENDIF;",
+       "MetadataProcedure": "",
+       "DataProcedure": "
+                IF ( pDimensionCount = 2 );
+                    IF (CELLISUPDATEABLE  ( pCube, v1, v2 ) = 1);
+                        IF ( DTYPE ( vLastDim , v2 ) @= ''N'' );
+                            CELLPUTN ( StringToNumber ( v3 ), pCube, v1, v2 );
+                        ELSE;
+                            CELLPUTS ( v3, pCube, v1, v2 );
+                        ENDIF;
+                    ENDIF;
+                ELSEIF ( pDimensionCount = 3 );
+                    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3 ) = 1);
+                        IF ( DType ( vLastDim , v3 ) @= ''N'' );
+                            CELLPUTN ( StringToNumber ( v4 ), pCube, v1, v2, v3 );
+                        ELSE;
+                            CELLPUTS ( v4, pCube, v1, v2, v3 );
+                        ENDIF;
+                    ENDIF;
+                ELSEIF ( pDimensionCount = 4 );
+                    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4 ) = 1);
+                        IF ( DTYPE ( vLastDim , v4 ) @= ''N'' );
+                            CELLPUTN ( StringToNumber ( v5 ), pCube, v1, v2, v3, v4 );
+                        ELSE;
+                            CELLPUTS ( v5, pCube, v1, v2, v3, v4 );
+                        ENDIF;
+                    ENDIF;
+                ELSEIF ( pDimensionCount = 5 );
+                    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5 ) = 1);
+                        IF ( DTYPE ( vLastDim , v5 ) @= ''N'' );
+                            CELLPUTN ( StringToNumber ( v6 ), pCube, v1, v2, v3, v4, v5 );
+                        ELSE;
+                            CELLPUTS ( v6, pCube, v1, v2, v3, v4, v5 );
+                        ENDIF;
+                    ENDIF;
+                ELSEIF ( pDimensionCount = 6 );
+                IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5, v6 ) = 1);
+                IF ( DTYPE ( vLastDim , v6 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v7 ), pCube, v1, v2, v3, v4, v5, v6 );
+                ELSE;
+                CELLPUTS ( v7, pCube, v1, v2, v3, v4, v5, v6 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 7 );
+                IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5, v6, v7 ) = 1);
+                IF ( DTYPE ( vLastDim , v7 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v8 ), pCube, v1, v2, v3, v4, v5, v6, v7 );
+                ELSE;
+                CELLPUTS ( v8, pCube, v1, v2, v3, v4, v5, v6, v7 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 8 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8 ) = 1);
+                IF ( DTYPE ( vLastDim , v8 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v9 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+                ELSE;
+                CELLPUTS ( v9, pCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 9 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) = 1);
+                IF ( DTYPE ( vLastDim , v9 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v10 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+                ELSE;
+                CELLPUTS ( v10, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 10);
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) = 1);
+                IF ( DTYPE ( vLastDim , v10 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v11 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+                ELSE;
+                CELLPUTS ( v11, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 11 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) = 1);
+                IF ( DTYPE ( vLastDim , v11 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v12 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+                ELSE;
+                CELLPUTS ( v12, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 12 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 ) = 1);
+                IF ( DTYPE ( vLastDim , v12 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v13 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+                ELSE;
+                CELLPUTS ( v13, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 13 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 ) = 1);
+                IF ( DTYPE ( vLastDim , v13 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v14 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+                ELSE;
+                CELLPUTS ( v14, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 14);
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 ) = 1);
+                IF ( DTYPE ( vLastDim , v14 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v15 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 );
+                ELSE;
+                CELLPUTS ( v15, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 15 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 ) = 1);
+                IF ( DTYPE ( vLastDim , v15 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v16 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+                ELSE;
+                CELLPUTS ( v16, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15 );
+                ENDIF;
+                ENDIF;
+                ELSEIF ( pDimensionCount = 16 );
+                IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 ) = 1);
+                IF ( DTYPE ( vLastDim , v16 ) @= ''N'' );
+                CELLPUTN ( StringToNumber ( v17 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 );
+                ELSE;
+                CELLPUTS ( v17, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v13, v14, v15, v16 );
+                ENDIF;
+                ENDIF;
+                ENDIF;",
+        "Variables": [
+            {
+            "Name": "v1",
+            "Type": "String",
+            "Position": 1
+        },
+        {
+            "Name": "v2",
+            "Type": "String",
+            "Position": 2
+        },
+        {
+            "Name": "v3",
+            "Type": "String",
+            "Position": 3
+        },
+        {
+            "Name": "v4",
+            "Type": "String",
+            "Position": 4
+        },
+        {
+            "Name": "v5",
+            "Type": "String",
+            "Position": 5
+        },
+        {
+            "Name": "v6",
+            "Type": "String",
+            "Position": 6
+        },
+        {
+            "Name": "v7",
+            "Type": "String",
+            "Position": 7
+        },
+        {
+            "Name": "v8",
+            "Type": "String",
+            "Position": 8
+        },
+        {
+            "Name": "v9",
+            "Type": "String",
+            "Position": 9
+        },
+        {
+            "Name": "v10",
+            "Type": "String",
+            "Position": 10
+        },
+        {
+            "Name": "v11",
+            "Type": "String",
+            "Position": 11
+        },
+        {
+            "Name": "v12",
+            "Type": "String",
+            "Position": 12
+        },
+        {
+            "Name": "v13",
+            "Type": "String",
+            "Position": 13
+        },
+        {
+            "Name": "v14",
+            "Type": "String",
+            "Position": 14
+        },
+        {
+            "Name": "v15",
+            "Type": "String",
+            "Position": 15
+        },
+        {
+            "Name": "v16",
+            "Type": "String",
+            "Position": 16
+        },
+        {
+            "Name": "v17",
+            "Type": "String",
+            "Position": 17
+        }
+        ]
+    } 
+}'; 
+
+# POST Extract process to remote database
+vRemoteDatabaseProcessesUrl = pTargetURL | '/api/' | pTargetTenant | '/v0/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | 'ExecuteProcessWithReturn?$expand=*';
+
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, 'POST ' | vRemoteDatabaseProcessesUrl );
+    #ASCIIOutput ( pLogFile, vJsonImportProcess );
+ENDIF;
+ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  vJsonImportProcess );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+IF ( vResponseCode < 200 % vResponseCode >=300 );
+    #
+    ProcessQuit;
+ENDIF;
+
+IF ( SCAN ( 'QuitCalled', vResponseBody) > 0 );
+    ProcessQuit;
+ENDIF;
+
+
+
+#endregion

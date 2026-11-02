@@ -1,0 +1,52 @@
+{
+	"@type":"Process",
+	"Name":"Migrate.Setup",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Migrate.Setup.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pTargetURL",
+			"Prompt":"",
+			"Value":"https://us-east-1.planninganalytics.test.saas.ibm.com/",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetTenant",
+			"Prompt":"",
+			"Value":"1B1AOQ8H8DK4",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetTM1",
+			"Prompt":"",
+			"Value":"Planning Sample",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetAPIKey",
+			"Prompt":"",
+			"Value":"azE6dXNyX2ZmZTVhMmU2LWY0YjItMzI3NS1hOWNiLWZjM2QyNzkwZmZjYjpieDJ1RnpJQy9JNUF1blB2eVFGcUpjTzFsUlZwVG9EUkJWWFVyWlNOTTlnPTo1c2po",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"",
+			"Value":"Y",
+			"Type":"String"
+		},
+		{
+			"Name":"pLogFile",
+			"Prompt":"",
+			"Value":"deleteThis.txt",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1779220926000",
+	"VariablesUIData": []
+}

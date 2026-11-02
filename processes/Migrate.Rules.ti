@@ -1,0 +1,38 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Migrating rules from cube: ' | pCube );
+
+
+# Process configuration
+vSourcePAURL = pSourceURL | '/api/' | pSourceTenant | '/v0';
+vTargetPAURL = pTargetURL | '/api/' | pTargetTenant | '/v0';
+
+vRulesJSON = '{}';
+vRulesJSON = JsonAdd ( vRulesJSON, 'Rules', StringToJson( CubeRuleGet( pCube ) ) );
+
+# Patch rules
+vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | URLEncode ( 'Cubes(''' | pCube | ''')' );
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, ' PATCH ' | vRemoteDatabaseProcessesUrl );
+    #ASCIIOUTPUT ( pLogFile, vRulesJSON );
+ENDIF;
+ExecuteHttpRequest ( 'PATCH', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' | vRulesJSON );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+
+IF ( vResponseCode < 200 % vResponseCode >= 300 );
+    ASCIIOutput ( pLogFile, 'Error migrating rules from cube: ' | pCube );
+ELSE;
+    ASCIIOutput ( pLogFile, 'Rules migration from cube: ' | pCube | ' complete' );
+ENDIF;
+
+
+#endregion
+#region Epilog
+
+
+#endregion

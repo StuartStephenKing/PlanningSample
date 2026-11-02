@@ -1,0 +1,30 @@
+#region Prolog
+
+vProcessName = GetProcessName ();
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vLogFile     = '/Process logs/' | vProcessName | '_' | vNow | '.log';
+StringGlobalVariable ( 'vBearerToken' );
+DatasourceASCIIQuoteCharacter = '';
+
+vBoxClientID = CellGetS( 'Model Control', 'BOX Client ID', 'Value' );
+vBoxClientSecret = CellGetS( 'Model Control', 'BOX Client Secret', 'Value' );
+vBoxSubject = CellGetS( 'Model Control', 'BOX Subject ID', 'Value' );
+
+#Get Token
+vBOXAuthURL  = 'https://api.box.com/oauth2/token';
+ExecuteHttpRequest( 'POST', vBOXAuthURL, '-k', '-h Content-Type:application/x-www-form-urlencoded', '-d client_id=' | vBoxClientID | '&client_secret=' | vBoxClientSecret | '&grant_type=client_credentials&box_subject_type=enterprise&box_subject_id=' | vBoxSubject );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF (vResponseCode <> 200);
+    IF ( pDebug @= 'Y' );
+        ASCIIOUTPUT( vLogFile, NumberToString(vResponseCode) | ' ' | vResponseBody);
+    ENDIF;
+    ProcessQuit;
+ELSE;
+    vBearerToken = JsonToString ( vResponseBody, 'access_token', -1, ' ');
+    IF ( pDebug @= 'Y' );
+        ASCIIOUTPUT( vLogFile, 'Retrieved bearer token:' | vBearerToken);
+    ENDIF;
+ENDIF;
+
+#endregion

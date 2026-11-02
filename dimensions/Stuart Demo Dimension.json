@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Stuart Demo Dimension",
+	"Hierarchies@Code.links":
+	[
+		"Stuart Demo Dimension.hierarchies/Stuart Demo Dimension.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Stuart Demo Dimension')/Hierarchies('Stuart Demo Dimension')"
+	}
+}

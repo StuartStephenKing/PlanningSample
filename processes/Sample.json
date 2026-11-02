@@ -1,0 +1,12 @@
+{
+	"@type":"Process",
+	"Name":"Sample",
+	"HasSecurityAccess":false,
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "1782145662000"
+}

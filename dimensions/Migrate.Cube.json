@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Migrate.Cube",
+	"Hierarchies@Code.links":
+	[
+		"Migrate.Cube.hierarchies/Migrate.Cube.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Migrate.Cube')/Hierarchies('Migrate.Cube')"
+	}
+}

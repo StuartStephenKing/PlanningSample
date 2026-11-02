@@ -1,0 +1,20 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Control Value",
+	"Elements":
+	[
+		{
+			"Name":"Value",
+			"Type":"String"
+		},
+		{
+			"Name":"nValue",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"sValue",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

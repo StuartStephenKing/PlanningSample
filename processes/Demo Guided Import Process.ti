@@ -1,0 +1,73 @@
+#region Prolog
+MinorErrorLogMax = -1;
+OnMinorErrorDoItemSkip = 1;
+SetInputCharacterSet('TM1CS_UTF8');
+If (DimensionExists('Demo New Dimension') = 0);
+DimensionCreate('Demo New Dimension');
+EndIf;
+lastAttr='';
+iAttr=DIMSIZ('}ElementAttributes_Demo New Dimension');
+i=iAttr;
+While(i > 0);
+attrName = DIMNM('}ElementAttributes_Demo New Dimension', i);
+If(SUBST(attrName,0,1)@<>'}');
+lastAttr=attrName;
+i=0;
+Else;
+i=i-1;
+EndIf;
+End;
+ElementAttrInsert('Demo New Dimension','Demo New Dimension',lastAttr,'Norway','A');
+lastAttr = 'Norway';
+
+#endregion
+#region Metadata
+If(vType@='');
+vType='N';
+ElseIf(vType@='String' % vType@='S');
+vType='S';
+ElseIf(vType@='Numeric' % vType@='N');
+vType='N';
+ElseIf(vType@='Consolidated' % vType@='C');
+vType='C';
+Else;
+StringToNumber('IMPERROR_MT_'|vType);
+EndIf;
+If(vWeight@='');
+vWeight_num=1;
+Else;
+vWeight_num=StringToNumberEx(vWeight,'.',',');
+EndIf;
+vLastMember='';
+If(Member@<>'');
+If(vLastMember@='');
+HierarchyElementInsert('Demo New Dimension','Demo New Dimension','',Member,vType);
+Else;
+If(HierarchyElementExists('Demo New Dimension','Leaves',Member)=1);
+StringToNumber('IMPERROR_CL_'|Member);
+EndIf;
+HierarchyElementInsert('Demo New Dimension','Demo New Dimension','',Member,'C');
+HierarchyElementComponentAdd('Demo New Dimension','Demo New Dimension',Member,vLastMember,vWeight_num);
+EndIf;
+vLastMember=Member;
+EndIf;
+If(Parent@<>'');
+If(vLastMember@='');
+HierarchyElementInsert('Demo New Dimension','Demo New Dimension','',Parent,vType);
+Else;
+If(HierarchyElementExists('Demo New Dimension','Leaves',Parent)=1);
+StringToNumber('IMPERROR_CL_'|Parent);
+EndIf;
+HierarchyElementInsert('Demo New Dimension','Demo New Dimension','',Parent,'C');
+HierarchyElementComponentAdd('Demo New Dimension','Demo New Dimension',Parent,vLastMember,vWeight_num);
+EndIf;
+vLastMember=Parent;
+EndIf;
+
+#endregion
+#region Data
+If(Member@<>'');
+ElementAttrPutS(ATTR_S_AccountName_Norwegian,'Demo New Dimension','Demo New Dimension',Member,'Norway');
+EndIf;
+
+#endregion

@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Migrate.Process",
+	"Hierarchies@Code.links":
+	[
+		"Migrate.Process.hierarchies/Migrate.Process.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Migrate.Process')/Hierarchies('Migrate.Process')"
+	}
+}

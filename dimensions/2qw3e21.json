@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"2qw3e21",
+	"Hierarchies@Code.links":
+	[
+		"2qw3e21.hierarchies/2qw3e21.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('2qw3e21')/Hierarchies('2qw3e21')"
+	}
+}

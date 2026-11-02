@@ -1,0 +1,34 @@
+{
+	"@type":"Subset",
+	"Name":"plan_BudgetPlan_sandbox_24084.877997697",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('goal')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('COS (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('depreciation (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('payroll (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('revenue (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('other expense (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('allocations (future)')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('input')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('line input')"
+		}
+	]
+}

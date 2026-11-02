@@ -1,0 +1,96 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Running migration setup process' );
+
+# Import process
+vProcessJson = '{
+    "Process": {
+        "Name":"Migrate.Setup",
+        "HasSecurityAccess": false,
+        "PrologProcedure": "
+        
+            vProcessMigrate = ''Migrate.Process'';
+            IF ( DimensionExists ( vProcessMigrate ) = 0 );
+            DimensionCreate ( vProcessMigrate );
+            ENDIF;\r\nDimensionElementInsertDirect ( vProcessMigrate, '''', ''Migrate'', ''S'' );
+            IF ( CubeExists ( vProcessMigrate ) = 0 );
+                CubeCreate( vProcessMigrate, ''}Processes'', vProcessMigrate );
+            ENDIF;
+            vChoreMigrate = ''Migrate.Chore'';
+            IF ( DimensionExists ( vChoreMigrate ) = 0 );
+            DimensionCreate ( vChoreMigrate );
+            ENDIF;\r\nDimensionElementInsertDirect ( vChoreMigrate, '''', ''Migrate'', ''S'' );
+            IF ( CubeExists ( vChoreMigrate ) = 0 );
+                CubeCreate( vChoreMigrate, ''}Chores'', vChoreMigrate );
+            ENDIF; 
+            vDimensionMigrate = ''Migrate.Dimension'';
+            IF ( DimensionExists ( vDimensionMigrate ) = 0 );
+                DimensionCreate ( vDimensionMigrate );
+            ENDIF;
+            IF ( CubeExists ( vDimensionMigrate ) = 0 );
+                CubeCreate ( vDimensionMigrate, ''}Dimensions'', vDimensionMigrate );
+            ENDIF;
+            DimensionElementInsertDirect ( vDimensionMigrate, '''', ''Migrate Hierarchy'', ''S'' );
+            DimensionElementInsertDirect ( vDimensionMigrate, '''', ''Migrate Attributes'', ''S'' );
+            DimensionElementInsertDirect ( vDimensionMigrate, '''', ''Migrate Subsets'', ''S'' );
+            
+            vCubeMigrate = ''Migrate.Cube'';
+            IF ( DimensionExists ( vCubeMigrate ) = 0 );
+                DimensionCreate ( vCubeMigrate );
+            ENDIF;
+            IF ( CubeExists ( vCubeMigrate ) = 0 );
+                CubeCreate( vCubeMigrate, ''}Cubes'', vCubeMigrate );
+            ENDIF;
+            DimensionElementInsertDirect ( vCubeMigrate, '''', ''Migrate Cube'', ''S'' );
+            DimensionElementInsertDirect ( vCubeMigrate, '''', ''Migrate Rules'', ''S'' );
+            DimensionElementInsertDirect ( vCubeMigrate, '''', ''Migrate Views'', ''S'' );
+            DimensionElementInsertDirect ( vCubeMigrate, '''', ''Migrate Data'', ''S'' );
+            IF ( CubeExists ( vCubeMigrate ) = 0 );
+                CubeCreate( vCubeMigrate, ''}Cubes'', vCubeMigrate );
+            ENDIF;",
+    "MetadataProcedure": "",
+    "DataProcedure": "",
+    "EpilogProcedure": "",
+    "DataSource": {
+        "Type": "None"
+    },
+    "Parameters": [],
+    "Variables": []
+    }
+}'; 
+
+# POST Extract process to remote database
+vRemoteDatabaseProcessesUrl = pTargetURL | '/api/' | pTargetTenant | '/v0/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | 'ExecuteProcessWithReturn?$expand=*';
+
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+    #ASCIIOutput ( pLogFile, vProcessJson );
+ENDIF;
+ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  vProcessJson );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+
+IF ( vResponseCode < 200 % vResponseCode >= 300 );
+    ASCIIOutput ( pLogFile, 'Migration setup process failed' );
+ENDIF;
+
+IF ( SCAN ( 'QuitCalled', vResponseBody) > 0 );
+    ASCIIOutput ( pLogFile, 'Migration setup process failed' );
+ENDIF;
+
+ASCIIOutput ( pLogFile, 'Migration setup process successful' );
+
+#endregion
+#region Data
+
+
+#endregion
+#region Epilog
+
+
+
+#endregion

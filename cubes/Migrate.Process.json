@@ -1,0 +1,14 @@
+{
+	"@type":"Cube",
+	"Name":"Migrate.Process",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('}Processes')"
+		},
+		{
+			"@id":"Dimensions('Migrate.Process')"
+		}
+	],
+	"Views@Code.links":[]
+}

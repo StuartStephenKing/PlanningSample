@@ -1,0 +1,24 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Migrate.Cube",
+	"Elements":
+	[
+		{
+			"Name":"Migrate Cube",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Rules",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Views",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Data",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

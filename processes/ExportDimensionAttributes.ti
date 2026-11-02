@@ -1,0 +1,36 @@
+#region Prolog
+
+vExportFile = '^/'  | pFile;
+vCube = '}ElementAttributes_' | pDimension;
+vView       = '__Export';
+
+IF ( pHierarchy @= 'Leaves' );
+    vMDX = 'SELECT  { [' | pDimension | '].[' | pHierarchy | '].MEMBERS } ON 0, { [}Groups].[}Groups].MEMBERS } ON 1 FROM [' | vCube | ']';
+ELSEIF ( HierarchyExists ( pDimension, 'Leaves' ) = 1 );
+    vMDX = 'SELECT { FILTER(TM1SubsetAll([' | pDimension | '].[' | pHierarchy | ']), ([' | pDimension | '].[' | pHierarchy | '].CURRENTMEMBER.PROPERTIES("ELEMENT_LEVEL", TYPED) > 0)) }, ([' | pDimension | '].[' | pHierarchy | '].CURRENTMEMBER.PROPERTIES("ELEMENT_LEVEL", TYPED) > 0))
+} ON 0, { [}Groups].[}Groups].MEMBERS } ON 1 FROM [' | vCube | ']';
+    ViewExtractSkipCalcsSet ( vCube, vView, 0 );
+ELSE;
+    vMDX = 'SELECT  { [' | pDimension | '].[' | pHierarchy | '].MEMBERS } ON 0, { [}Groups].[}Groups].MEMBERS } ON 1 FROM [' | vCube | ']';
+    ViewExtractSkipCalcsSet ( vCube, vView, 0 );
+ENDIF;
+
+IF ( DimensionExists ( 'Sandboxes' ) = 1 );
+   vMDX = vMDX | ' WHERE [Sandboxes].[Sandboxes].[Base]';
+ENDIF;
+
+ViewCreateByMDX( '}ElementSecurity_' | pDimension, vView, vMDX, 1 );
+
+DataSourceType = 'VIEW';
+DatasourceNameForServer = vCube;
+DatasourceCubeview = vView;
+
+ViewExtractSkipRuleValuesSet ( vCube, vView, 1 );
+ViewExtractSkipZeroesSet ( vCube, vView, 1 );
+
+#endregion
+#region Data
+
+ASCIIOUTPUT ( vExportFile, v1, v2, v3 );
+
+#endregion

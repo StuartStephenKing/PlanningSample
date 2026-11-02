@@ -1,0 +1,20 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Dimension Control",
+	"Elements":
+	[
+		{
+			"Name":"Migrate Hierarchy",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Attributes",
+			"Type":"String"
+		},
+		{
+			"Name":"Migrate Subsets",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

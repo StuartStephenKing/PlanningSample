@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"BOX.Import",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"BOX.Import.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "177854972800021"
+}

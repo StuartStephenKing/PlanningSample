@@ -1,0 +1,100 @@
+{
+	"@type":"Hierarchy",
+	"Name":"Model Control",
+	"Elements":
+	[
+		{
+			"Name":"BOX Parent Folder ID",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Folder URL",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Last Export Folder ID",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Last Export Folder URL",
+			"Type":"String"
+		},
+		{
+			"Name":"Base URL",
+			"Type":"String"
+		},
+		{
+			"Name":"Model Base URL",
+			"Type":"String"
+		},
+		{
+			"Name":"PAW Base URL",
+			"Type":"String"
+		},
+		{
+			"Name":"Tenant ID",
+			"Type":"String"
+		},
+		{
+			"Name":"Model Name",
+			"Type":"String"
+		},
+		{
+			"Name":"Slack Webhook",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Client ID",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Client Secret",
+			"Type":"String"
+		},
+		{
+			"Name":"BOX Subject ID",
+			"Type":"String"
+		},
+		{
+			"Name":"Databricks Workspace URL",
+			"Type":"String"
+		},
+		{
+			"Name":"Databricks PAT",
+			"Type":"String"
+		},
+		{
+			"Name":"Snowflake OAuth URL",
+			"Type":"String"
+		},
+		{
+			"Name":"Snowflake Statements URL",
+			"Type":"String"
+		},
+		{
+			"Name":"PASaaS API Key",
+			"Type":"String"
+		},
+		{
+			"Name":"Process Logs Folder",
+			"Type":"String"
+		},
+		{
+			"Name":"Current Time",
+			"Type":"String"
+		},
+		{
+			"Name":"Time Format",
+			"Type":"String"
+		},
+		{
+			"Name":"TransactionStart",
+			"Type":"String"
+		},
+		{
+			"Name":"TransactionEnd",
+			"Type":"String"
+		}
+	],
+	"Subsets@Code.links":[]
+}

@@ -1,0 +1,24 @@
+#region Prolog
+IF ( DimensionExists( pDimension ) = 0 );
+    DimensionCreate( pDimension );
+ENDIF;
+
+IF ( HierarchyExists( pDimension, pHierarchy ) = 0);
+    HierarchyCreate( pDimension, pHierarchy );
+ELSE;
+    HierarchyDeleteAllElements( pDimension, pHierarchy );
+ENDIF;
+
+DataSourceType = 'CHARACTERDELIMITED';
+DatasourceNameForServer = pFile;
+
+#endregion
+#region Metadata
+
+HierarchyElementInsert ( pDimension, pHierarchy, '', v1, v4 );
+IF ( v1 @<> v2 );
+    HierarchyElementInsert ( pDimension, pHierarchy, '', v2, v4 );
+    HierarchyElementComponentAdd ( pDimension, pHierarchy, v2, v1, v3 );
+ENDIF;
+
+#endregion

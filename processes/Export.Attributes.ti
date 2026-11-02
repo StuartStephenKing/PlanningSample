@@ -1,0 +1,27 @@
+#region Prolog
+vExportFile  =  '^\attributesTest.csv';
+vCube = '}ElementAttributes_' | pDimension;
+vView = '__ExportAttributes_' | pHierarchy;
+IF ( CubeExists( vCube ) = 0 );
+    ProcessBreak;
+ENDIF;
+vMDX = 'SELECT 
+   {
+      [}ElementAttributes_' | pDimension | '].[}ElementAttributes_' | pDimension | '].MEMBERS
+   } ON 0, 
+   {
+      [' | pDimension | '].[' | pHierarchy | '].MEMBERS
+   } ON 1 
+FROM
+   [}ElementAttributes_' | pDimension | ']';
+ViewCreateByMDX( vCube, vView, vMDX, 1 );
+DataSourceType          = 'VIEW';
+DatasourceNameForServer = vCube;
+DatasourceCubeview      = vView;
+vRowCount = 0;
+#endregion
+#region Data
+vAttributeType = ElementType ( '}ElementAttributes_' | pDimension, '}ElementAttributes_' | pDimension, v1 );
+ASCIIOUTPUT ( vExportFile, vAttributeType, v1, v2, value );
+vRowCount = vRowCount + 1;
+#endregion

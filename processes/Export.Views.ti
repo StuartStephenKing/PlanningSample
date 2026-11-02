@@ -1,0 +1,202 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Exporting views from cube: ' | pCube );
+vExportFile = pExportDir | '/Cubes/' | pCube | '/Views/';
+
+
+vViewsURL = pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/Cubes(''' | URLEncode ( pCube ) | ''')' | '/Views';
+ExecuteHttpRequest ( 'GET', vViewsURL, '-k', '-h Content-Type:application/json' );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( vLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+IF ( vResponseCode >= 300 % vResponseCode < 200 );
+    ASCIIOutput ( pLogFile, 'Error reading views from cube: ' | pCube );
+    ProcessQuit();
+ENDIF;
+vViewsJson = JsonGet ( vResponseBody, 'value' );
+
+vViewsIndex = 0;
+WHILE ( vViewsIndex < JsonSize ( vViewsJson ) );
+    vViewJson = JsonGet( vViewsJson, vViewsIndex );
+    vViewType = JsonToString ( vViewJSON, '@odata.type' );
+    vViewName = JsonToString ( vViewJSON, 'Name' );
+
+    IF ( VViewType @= '#ibm.tm1.api.v1.NativeView' );
+        vProcessURL = pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/Cubes(''' | URLEncode ( pCube ) | ''')' | '/Views(''' | URLEncode ( vViewName ) | ''')?$expand=Rows/Subset($expand=Hierarchy($expand=Dimension),Elements($select=Name)),Columns/Subset($expand=Hierarchy($expand=Dimension),Elements($select=Name)),Titles/Subset($expand=Hierarchy($expand=Dimension),Elements($select=Name)),Titles/Selected($select=Name)';
+        ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json' );
+        vResponseCode = HttpResponseGetStatusCode();
+        vResponseBody = HttpResponseGetBody();
+        IF ( pDebug @= 'Y' );
+            #ASCIIOUTPUT ( vLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+        ENDIF;
+        IF ( vResponseCode >= 300 % vResponseCode < 200 );
+            ASCIIOutput ( pLogFile, 'Error reading view: ' | vViewName );
+            ProcessError();
+        ENDIF;
+
+        # Modify the view JSON
+        vViewJSON = vResponseBody;
+        vViewJSON = JsonRemove ( vViewJSON, '@odata.context' );
+        vViewJSON = JsonRemove(  vViewJSON, '@odata.etag' );
+
+        # Columns
+        vTargetColumnJSON = '[]';
+        vColumnsJSON = JsonGet ( vViewJSON, 'Columns' );
+        vColumnIndex = 1;
+        WHILE ( vColumnIndex <= JsonSize ( vColumnsJSON ) );
+            vColumnJson = JsonGet ( vColumnsJSON, vColumnIndex - 1 );
+            vSubsetJson = JsonGet ( vColumnJson, 'Subset' );
+            vSubsetName = JsonToString ( vSubsetJson, 'Name' );
+            vSubsetAlias = JsonGet ( vSubsetJson, 'Alias' );
+            vHierarchyJson = JsonGet ( vSubsetJson, 'Hierarchy' );
+            vHierarchyName = JsonToString ( vHierarchyJson, 'Name' );
+            vDimensionJson = JsonGet ( vHierarchyJson, 'Dimension' );
+            vDimensionName = JsonToString ( vDimensionJson, 'Name' );
+            IF ( vSubsetName @<> '' );
+                vSubsetBindJson = '{"Subset@odata.bind": "Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')/Subsets(''' | vSubsetName | ''')"}';
+                vTargetColumnJSON = JsonAdd ( vTargetColumnJSON, vColumnIndex - 1, vSubsetBindJson );
+                #ASCIIOutput ( 'NativeView_' | vViewName | '.txt', 'C-> ' | vTargetColumnJSON );
+            ELSE;
+                vSubsetExpression = JsonToString ( vSubsetJson, 'Expression' );
+                IF ( vSubsetExpression @<> 'null' );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Alias', vSubsetAlias );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Expression',  vSubsetExpression );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')' ) );
+                    vTargetSubsetJson = JsonAdd( '{}', 'Subset', JsonToString ( vTargetSubsetPropertiesJSON ) );
+                    vTargetColumnJSON = JsonAdd ( vTargetColumnJSON, vColumnIndex - 1, vTargetSubsetJson );
+                ElSE;
+                    vSubsetElements = JsonGet ( vSubsetJson, 'Elements' );
+                    vMemberIndex = 1;
+                    vSubsetElementsJsonArray = '[]';
+                    WHILE ( vMemberIndex < JsonSize ( vSubsetElements ) );
+                        vSubsetElementJson = JsonGet ( vSubsetElements, vMemberIndex );
+                        vSubsetElementName = JsonToString ( vSubsetElementJson, 'Name' );
+                        vSubsetElementsJsonArray = JsonAdd ( vSubsetElementsJsonArray, vMemberIndex - 1, StringToJson ( 'Dimensions(''' | vDimensionName  | ''')/Hierarchies(''' | vHierarchyName | ''')/Elements(''' | vSubsetElementName | ''')' ) );
+                        # Elements in the subset
+                        vMemberIndex = vMemberIndex + 1;
+                    END;
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')' ) );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Elements@odata.bind', vSubsetElementsJsonArray );
+                    vTargetSubsetJson = JsonAdd( '{}', 'Subset', JsonToString ( vTargetSubsetPropertiesJSON ) );
+                    vTargetColumnJSON = JsonAdd ( vTargetColumnJSON, vColumnIndex - 1, vTargetSubsetJson );
+                ENDIF;
+            ENDIF;            
+            vColumnIndex = vColumnIndex + 1;
+        END;
+        vViewJSON = JsonReplace ( vViewJSON, 'Columns', JsonToString ( vTargetColumnJSON ) );
+
+        # Rows
+        vTargetRowsJSON = '[]';
+        vRowsJSON = JsonGet ( vViewJSON, 'Rows' );
+        vRowIndex = 1;
+        WHILE ( vRowIndex <= JsonSize ( vRowsJSON ) );
+            vRowJson = JsonGet ( vRowsJSON, vRowIndex - 1 );
+            vSubsetJson = JsonGet ( vRowJson, 'Subset' ); 
+            vSubsetName = JsonToString ( vSubsetJson, 'Name' );
+            vSubsetAlias = JsonGet ( vSubsetJson, 'Alias' );
+            vHierarchyJson = JsonGet ( vSubsetJson, 'Hierarchy' );
+            vHierarchyName = JsonToString ( vHierarchyJson, 'Name' );
+            vDimensionJson = JsonGet ( vHierarchyJson, 'Dimension' );
+            vDimensionName = JsonToString ( vDimensionJson, 'Name' );
+            IF ( vSubsetName @<> '' );
+                vSubsetBindJson = '{"Subset@odata.bind": "Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')/Subsets(''' | vSubsetName | ''')"}';
+                vTargetRowsJSON = JsonAdd ( vTargetRowsJSON, vRowIndex - 1, vSubsetBindJson );
+            ELSE;
+                vSubsetExpression = JsonGet ( vSubsetJson, 'Expression' );
+                IF ( vSubsetExpression @<> 'null' );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Alias', vSubsetAlias );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Expression',  vSubsetExpression  );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')' ) );
+                    vTargetSubsetJson = JsonAdd ( '{}', 'Subset', vTargetSubsetPropertiesJSON );
+                    vTargetRowsJSON = JsonAdd ( vTargetRowsJSON, vRowIndex - 1, vTargetSubsetJson );
+                ElSE;
+                    vSubsetElements = JsonGet ( vSubsetJson, 'Elements' );
+                    vMemberIndex = 1;
+                    vSubsetElementsJsonArray = '[]';
+                    WHILE ( vMemberIndex < JsonSize ( vSubsetElements ) );
+                        vSubsetElementJson = JsonGet ( vSubsetElements, vMemberIndex );
+                        vSubsetElementName = JsonToString ( vSubsetElementJson, 'Name' );
+                        vSubsetElementsJsonArray = JsonAdd ( vSubsetElementsJsonArray, vMemberIndex - 1, StringToJson ( 'Dimensions(''' | vDimensionName  | ''')/Hierarchies(''' | vHierarchyName | ''')/Elements(''' | vSubsetElementName | ''')' ) );
+                        # Elements in the subset
+                        vMemberIndex = vMemberIndex + 1;
+                    END;
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')' ) );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Elements@odata.bind', vSubsetElementsJsonArray );
+                    vTargetSubsetJson = JsonAdd( '{}', 'Subset', JsonToString ( vTargetSubsetPropertiesJSON ) );
+                    vTargetRowsJSON = JsonAdd ( vTargetRowsJSON, vRowIndex - 1, vTargetSubsetJson );    
+                ENDIF;
+            ENDIF;            
+            vRowIndex = vRowIndex + 1;
+        END;
+        vViewJSON = JsonReplace ( vViewJSON, 'Rows', vTargetRowsJSON );
+
+        # Titles
+        vTargetTitlesJSON = '[]';
+        vTitlesJSON = JsonGet ( vViewJSON, 'Titles' );
+        vTitleIndex = 1;
+        WHILE ( vTitleIndex <= JsonSize ( vTitlesJSON ) );
+            vTitleJson = JsonGet ( vTitlesJSON, vTitleIndex - 1 );
+            vTargetTitleJson = '{}';
+            # Subset
+            vSubsetJson = JsonGet ( vTitleJson, 'Subset' );
+            vSubsetName = JsonToString ( vSubsetJson, 'Name' );
+            vSubsetAlias = JsonGet ( vSubsetJson, 'Alias' );
+            vHierarchyJson = JsonGet ( vSubsetJson, 'Hierarchy' );
+            vHierarchyName = JsonToString ( vHierarchyJson, 'Name' );
+            vDimensionJson = JsonGet ( vHierarchyJson, 'Dimension' );
+            vDimensionName = JsonToString ( vDimensionJson, 'Name' );
+            IF ( vSubsetName @<> '' );
+                vTargetTitleJson = JsonAdd ( vTargetTitleJson, 'Subset@odata.bind', StringToJson( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')/Subsets(''' | vSubsetName | ''')' ) ); 
+            ELSE;
+                vSubsetExpression = JsonGet ( vSubsetJson, 'Expression' );
+                IF ( vSubsetExpression @<> 'null' );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Alias', vSubsetAlias );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Expression', vSubsetExpression );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies('''| vHierarchyName | ''')' ) );
+                    vTargetTitleJson = JsonAdd ( vTargetTitleJson, 'Subset', vTargetSubsetPropertiesJSON );
+                ElSE;
+                    vSubsetElements = JsonGet ( vSubsetJson, 'Elements' );
+                    vMemberIndex = 1;
+                    vSubsetElementsJsonArray = '[]';
+                    WHILE ( vMemberIndex < JsonSize ( vSubsetElements ) );
+                        vSubsetElementJson = JsonGet ( vSubsetElements, vMemberIndex );
+                        vSubsetElementName = JsonToString ( vSubsetElementJson, 'Name' );
+                        vSubsetElementsJsonArray = JsonAdd ( vSubsetElementsJsonArray, vMemberIndex - 1, StringToJson ( 'Dimensions(''' | vDimensionName  | ''')/Hierarchies(''' | vHierarchyName | ''')/Elements(''' | vSubsetElementName | ''')' ) );
+                        # Elements in the subset
+                        vMemberIndex = vMemberIndex + 1;
+                    END;
+                    vTargetSubsetPropertiesJSON = JsonAdd ( '{}', 'Hierarchy@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')' ) );
+                    vTargetSubsetPropertiesJSON = JsonAdd ( vTargetSubsetPropertiesJSON, 'Elements@odata.bind', vSubsetElementsJsonArray );
+                    vTargetTitleJson = JsonAdd ( vTargetTitleJson, 'Subset', vTargetSubsetPropertiesJSON );   
+                ENDIF;
+            ENDIF;       
+            # Selected member
+            vSelectedElementJson = JsonGet ( vTitleJson, 'Selected' );
+            vSelectedElementName = JsonToString ( vSelectedElementJson, 'Name' );
+            vTargetTitleJson = JsonAdd ( vTargetTitleJson, 'Selected@odata.bind', StringToJson ( 'Dimensions(''' | vDimensionName | ''')/Hierarchies(''' | vHierarchyName | ''')/Elements(''' | vSelectedElementName | ''')' ) );
+            vTargetTitlesJSON = JsonAdd ( vTargetTitlesJSON, vTitleIndex - 1, vTargetTitleJson );
+            vTitleIndex = vTitleIndex + 1;
+        END;
+        vViewJSON = JsonReplace ( vViewJSON, 'Titles', JsonToString ( vTargetTitlesJSON ) );
+    ELSEIF ( VViewType @= '#ibm.tm1.api.v1.MDXView' );
+        #vViewJSON = JsonRemove ( vViewJSON, '@odata.context' );
+        vViewJSON = JsonRemove (  vViewJSON, '@odata.etag' );
+    ENDIF;
+    
+    ASCIIOutput ( vExportFile | '/' | vViewName | '.json', vViewJson  );
+  
+
+    vViewsIndex = vViewsIndex + 1;
+END;
+
+
+
+
+
+
+
+
+#endregion

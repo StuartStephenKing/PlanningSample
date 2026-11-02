@@ -1,0 +1,7 @@
+#region Prolog
+
+ASCIIOutput ( '/.users/stuart.king%40ca.ibm.com/output.txt', 'hello world' );
+
+
+
+#endregion

@@ -1,0 +1,24 @@
+{
+	"@type":"Hierarchy",
+	"Name":"SK_Measures",
+	"Elements":
+	[
+		{
+			"Name":"Units sold",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Comments",
+			"Type":"String"
+		},
+		{
+			"Name":"Unit price",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Revenue",
+			"Type":"Numeric"
+		}
+	],
+	"Subsets@Code.links":[]
+}

@@ -1,0 +1,14 @@
+{
+	"@type":"Process",
+	"Name":"Feeders Checker",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Feeders Checker.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "1790954670000",
+	"VariablesUIData": []
+}

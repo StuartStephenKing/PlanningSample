@@ -1,0 +1,33 @@
+{
+	"@type":"Process",
+	"Name":"JWT Test",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"JWT Test.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFileName",
+			"Prompt":"File-Name",
+			"Value":"{{testResultsFile}}",
+			"Type":"String"
+		},
+		{
+			"Name":"rsa_priv_key",
+			"Prompt":"The private key to use",
+			"Value":"{{vault:rsa-private-key}}",
+			"Type":"String"
+		},
+		{
+			"Name":"rsa_pub_key",
+			"Prompt":"The public key",
+			"Value":"-----BEGIN PUBLIC KEY-----\r\nMIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAuA80ZHYHG0iTSWwHgQJZ\r\nXmUUcd92B3UryQ7bT1iuETGTa98Aswg9vhjasZwlGZ6MQHlgNYseilb7zeVzFAov\r\nGSZPFbUXB+CsAL7795fsbTIqyYVw73dwTCFHmLSk4KJUOfS5TN+KVVA/FxZKPHJe\r\nFRqKbLeGjFJL6X13EZgKCnSpATkCj58Trs2glRI9+IjbN4O/1TQTT9o+sDXLwADD\r\nmNX89THETpIAGCu5t6o2+szjnaPt1FZ+LcDhhOVjpqRn5iQRV2ODvwGHRrEViOit\r\nmAchgL8PGTvl2H79vX5C+THlcGx+7e6Ip3P2/D3m1SdCpjXlRVl/c0JfrwGkUgDl\r\n+hxs3J6F0QRMK2j1BWddTKwR8xmFymfqNMRiEjdquUjoi4b0g4Tjn9z2T6PKfzS5\r\n7sVPZ3bFOTm/PpQw88TdYMp5s8N9TrkWOtDRl5FP5uOeASs4lCCxslkhlTBYfh2Y\r\nUltygaJcfy+d3CACfQSOe2kjO4mX/aIMFv2ZfbV8RfFfAgMBAAE=\r\n-----END PUBLIC KEY-----",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1780327335000"
+}

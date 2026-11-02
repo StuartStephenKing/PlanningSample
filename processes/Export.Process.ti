@@ -1,0 +1,28 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Exporting process: ' | pProcess );
+
+#Read the local process
+vProcessURL = pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/Processes(''' | URLEncode ( pProcess ) | ''')';
+ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json' );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+IF ( vResponseCode <> 200 );
+    ProcessError();
+ENDIF;
+
+#Modify the local process
+jsonProcess = vResponseBody;
+jsonProcess = JsonRemove ( jsonProcess, '@odata.context' );
+jsonProcess = JsonRemove( jsonProcess, '@odata.etag' );
+jsonProcess = JsonRemove( jsonProcess, 'Attributes' );
+jsonProcess = JsonRemove( jsonProcess, 'VariablesUIData' );
+
+ASCIIOutput ( pExportDir | '/Processes/' | pProcess | '.json', jsonProcess );
+
+
+#endregion

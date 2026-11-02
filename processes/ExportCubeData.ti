@@ -1,0 +1,74 @@
+#region Prolog
+
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vExportFile = '^/' | pFile;
+vView       = '__Export_' | vNow;
+
+vTotalDimCount = CubeDimensionCountGet ( pCube );
+vExportDimCount = vTotalDimCount;
+
+vMDX = 'SELECT NON EMPTY '; 
+index = 1;
+WHILE ( index <= vTotalDimCount );
+    vDimension = TABDIM( pCube, index );
+        IF ( HierarchyExists( vDimension, 'Leaves' ) = 1);
+            vMDX = vMDX | '{ [' | vDimension | '].[Leaves].MEMBERS } ';
+        ELSE;
+            vMDX = vMDX | '{ TM1FILTERBYLEVEL({TM1SUBSETALL([' | vDimension | '])}, 0) } ';
+        ENDIF;
+        IF ( index <> vTotalDimCount );
+            vMDX = vMDX | '* ';
+        ENDIF;
+    index = index + 1;
+END;
+vMDX = vMDX | '* { [Sandboxes].[Sandboxes].Members } ';
+vMDX = vMDX | ' ON 0 FROM [' | pCube | ']';
+
+# This doesn't work!!!
+#IF ( DimensionExists ( 'Sandboxes' ) = 1 );
+#    MDX = vMDX | ' WHERE [Sandboxes].[Sandboxes].[Base]';
+ #   vExportDimCount = vExportDimCount - 1;
+#ENDIF;
+
+ViewCreateByMDX ( pCube, vView, vMDX, 1 );
+DataSourceType='VIEW';
+DatasourceNameForServer=pCube;
+DatasourceCubeview=vView;
+
+ViewExtractSkipCalcsSet ( pCube, vView, 1 );
+ViewExtractSkipRuleValuesSet ( pCube, vView, 1 );
+ViewExtractSkipZeroesSet ( pCube, vView, 1 );
+
+#endregion
+#region Data
+
+# Need to account for the sandbox dimension by skipping the 2nd last variable
+IF ( vExportDimCount = 2 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v4 );
+ELSEIF ( vExportDimCount = 3 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v5 );
+ELSEIF ( vExportDimCount = 4 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v6 );
+ELSEIF ( vExportDimCount = 5 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v7 );
+ELSEIF ( vExportDimCount = 6 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8 );
+ELSEIF ( vExportDimCount = 7 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+ELSEIF ( vExportDimCount = 8 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v10 );
+ELSEIF ( vExportDimCount = 9 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v11 );
+ELSEIF ( vExportDimCount = 10 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v12 );
+ELSEIF ( vExportDimCount = 11 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v13 );
+ELSEIF ( vExportDimCount = 12 );
+    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12, v14 );
+ENDIF;
+
+#endregion
+#region Epilog
+
+
+#endregion

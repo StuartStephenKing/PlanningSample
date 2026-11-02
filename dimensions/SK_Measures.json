@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"SK_Measures",
+	"Hierarchies@Code.links":
+	[
+		"SK_Measures.hierarchies/SK_Measures.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('SK_Measures')/Hierarchies('SK_Measures')"
+	}
+}

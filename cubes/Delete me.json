@@ -1,0 +1,17 @@
+{
+	"@type":"Cube",
+	"Name":"Delete me",
+	"Dimensions":
+	[
+		{
+			"@id":"Dimensions('plan_business_unit')"
+		},
+		{
+			"@id":"Dimensions('plan_chart_of_accounts')"
+		},
+		{
+			"@id":"Dimensions('plan_controls')"
+		}
+	],
+	"Views@Code.links":[]
+}

@@ -1,0 +1,14 @@
+{
+	"@type":"Process",
+	"Name":"write to users",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"write to users.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "1786050965000",
+	"VariablesUIData": []
+}

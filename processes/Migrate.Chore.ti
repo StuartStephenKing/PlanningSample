@@ -1,0 +1,79 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Migrating chore: ' | pChore );
+
+
+# Process configuration
+vSourcePAURL = pSourceURL | '/api/' | pSourceTenant | '/v0';
+vTargetPAURL = pTargetURL | '/api/' | pTargetTenant | '/v0';
+
+# Authenticate
+# vUrl = vSourcePAURL | '/rolemgmt/v1/users/me';
+# ExecuteHttpRequest ( 'GET', vUrl, '-h Authorization: basic ' | Base64Encode( 'apikey:' | pSourceAPIKey ) );
+# vResponseCode = HttpResponseGetStatusCode();
+# vResponseBody  = HttpResponseGetBody(); 
+# IF ( vResponseCode <> 200 );
+#     ProcessError();
+# ENDIF;
+
+#Read the local process
+vProcessURL = vSourcePAURL | '/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1' | URLEncode ( '/Chores(''' | URLEncode ( pChore ) | ''')' );
+ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json' );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+IF ( vResponseCode <> 200 );
+    ProcessError();
+ENDIF;
+
+#Modify the local process
+jsonProcess = vResponseBody;
+jsonProcess = JsonRemove ( jsonProcess, '@odata.context' );
+jsonProcess = JsonRemove( jsonProcess, '@odata.etag' );
+#jsonProcess = JsonRemove ( jsonProcess, 'Name' );
+jsonProcess = JsonRemove( jsonProcess, 'Attributes' );
+jsonProcess = JsonRemove( jsonProcess, 'VariablesUIData' );
+
+# Run the process on the  remote database
+vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/Chores';
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+ENDIF;
+ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  jsonProcess );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) );
+ENDIF;
+    
+IF ( vResponseCode = 400 );
+    jsonErrorResponse = JsonGet ( vResponseBody, 'error' );
+    jsonErrorCode = JsonGet ( jsonErrorResponse, 'code' );
+    IF ( StringToNumber ( JsonToString ( jsonErrorCode ) ) = 278 & pReplace @= 'Y' );
+        vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | URLEncode ( 'Chores(''' | URLEncode ( pChore ) | ''')' );
+        jsonProcess = JsonRemove ( jsonProcess, 'Name' );
+
+        IF ( pDebug @= 'Y' );
+            #ASCIIOUTPUT ( pLogFile, ' PATCH ' | vRemoteDatabaseProcessesUrl );
+        ENDIF;
+        ExecuteHttpRequest ( 'PATCH', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  jsonProcess );
+        vResponseCode = HttpResponseGetStatusCode();
+        vResponseBody = HttpResponseGetBody();
+        IF ( pDebug @= 'Y' );
+            #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode )  );
+        ENDIF;
+        IF ( vResponseCode < 200  % vResponseCode >= 300 );
+            ASCIIOutput ( pLogFile, 'Error migrating chore: ' | pChore );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vResponseCode < 200  % vResponseCode >= 300 );
+    ASCIIOutput ( pLogFile, 'Error migrating chore: ' | pChore );
+ELSE;
+    ASCIIOutput ( pLogFile, 'Chore: ' | pChore | ' migration complete' );
+ENDIF;
+
+
+#endregion

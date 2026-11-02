@@ -1,0 +1,13 @@
+#region Prolog
+
+vClientIndex = 1;
+vClient = DIMNM( '}Clients', vClientIndex );
+WHILE ( vClient @<> '' );
+    IF ( vClient @<> 'Admin' );
+    ASCIIOutput ( '^\' | pFile, vClient, ATTRS( '}Clients', vClient, '}TM1_DefaultDisplayValue' ) );
+    ENDIF;
+    vClientIndex = vClientIndex + 1;
+    vClient = DIMNM( '}Clients', vClientIndex );
+END;
+
+#endregion

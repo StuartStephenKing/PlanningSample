@@ -1,0 +1,21 @@
+{
+	"@type":"Process",
+	"Name":"Set Sync",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Set Sync.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pSet",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "177274884500031"
+}

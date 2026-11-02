@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Migrate.Chore",
+	"Hierarchies@Code.links":
+	[
+		"Migrate.Chore.hierarchies/Migrate.Chore.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Migrate.Chore')/Hierarchies('Migrate.Chore')"
+	}
+}

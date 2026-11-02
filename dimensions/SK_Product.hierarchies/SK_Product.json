@@ -1,0 +1,33 @@
+{
+	"@type":"Hierarchy",
+	"Name":"SK_Product",
+	"Elements":
+	[
+		{
+			"Name":"Tents",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Flashlights",
+			"Type":"Numeric"
+		},
+		{
+			"Name":"Camping gear",
+			"Type":"Consolidated"
+		}
+	],
+	"Edges":
+	[
+		{
+			"ParentName":"Camping gear",
+			"ComponentName":"Tents",
+			"Weight":1
+		},
+		{
+			"ParentName":"Camping gear",
+			"ComponentName":"Flashlights",
+			"Weight":1
+		}
+	],
+	"Subsets@Code.links":[]
+}

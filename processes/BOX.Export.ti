@@ -1,0 +1,11 @@
+#region Prolog
+
+StringGlobalVariable ( 'vBearerToken' );
+
+ExecuteProcess( 'BOX.Authenticate' );
+ExecuteProcess( 'BOX.Export Folder',
+    'pDebug', 'Y' );
+
+
+
+#endregion

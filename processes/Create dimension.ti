@@ -1,0 +1,27 @@
+#region Prolog
+
+
+IF ( DimensionExists ( pDimension ) = 1);
+   DimensionDestroy ( pDimension );
+ENDIF; 
+DimensionCreate ( pDimension );
+
+DimensionNameLength = LONG ( pDimension );
+LongestElementNumberLength = LONG ( NumberToString ( pNumberOfElements ) );
+ElementNameHeader = UPPER ( SUBST ( pDimension, 1, pElementNameLength - LongestElementNumberLength ) );
+ElementNameHeaderLength = LONG ( ElementNameHeader );
+i = 1;
+WHILE ( i <= pNumberOfElements );
+   elementNumber = NumberToString( i );
+   zeroPadCount = pElementNameLength - ( ElementNameHeaderLength + LONG ( elementNumber ) );
+   zeroPadString = FILL ( '0', zeroPadCount );   
+   fullElementName = LOWER ( ElementNameHeader | zeroPadString | elementNumber );
+   DimensionElementInsert( pDimension, NumberToString(i), fullElementName, 'N' );
+   i = i + 1;
+END;
+
+IF ( pParentElement @= 'Y' );
+   DimensionTopElementInsert ( pDimension, DIMNM ( pDimension, 1 ), 'Total of ' | pDimension );
+ENDIF;
+
+#endregion

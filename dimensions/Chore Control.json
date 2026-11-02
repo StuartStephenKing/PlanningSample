@@ -1,0 +1,12 @@
+{
+	"@type":"Dimension",
+	"Name":"Chore Control",
+	"Hierarchies@Code.links":
+	[
+		"Chore Control.hierarchies/Chore Control.json"
+	],
+	"DefaultHierarchy":
+	{
+		"@id":"Dimensions('Chore Control')/Hierarchies('Chore Control')"
+	}
+}

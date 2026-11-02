@@ -1,0 +1,6 @@
+#region Prolog
+
+ASCIIOutput( 'text.txt', pFile );
+
+
+#endregion

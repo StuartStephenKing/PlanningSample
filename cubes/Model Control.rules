@@ -1,0 +1,5 @@
+['BOX Folder URL'] = S:'https://ibm.ent.box.com/folder/' | DB ('Model Control', 'BOX Parent Folder ID', 'Value' );
+['BOX Last Export Folder URL'] = S:'https://api.box.com/2.0/folders/' | DB ( 'Model Control', 'BOX Last Export Folder ID', 'Value' );
+['PAW Base URL'] = S:DB ( 'ModelControl', 'Base URL', 'Value' ) | '/api/' | DB( 'Model Control', 'Tenant ID' , 'Value' ) | '/v0';
+['Model Base URL'] = S:DB ( 'Model Control', 'PAW Base URL', 'Value' ) | '/tm1/' | DB( 'Model Control', 'Model Name', 'Value' ) | '/api/v1';
+['Current Time'] = S:TIMST ( NOW(), '\Y-\m-\dT\h:\i:\sZ' );
