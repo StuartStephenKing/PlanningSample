@@ -23,7 +23,7 @@ ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json
 vResponseCode = HttpResponseGetStatusCode();
 vResponseBody = HttpResponseGetBody();
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
 ENDIF;
 IF ( vResponseCode <> 200 );
     ProcessError();
@@ -40,13 +40,13 @@ jsonProcess = JsonRemove( jsonProcess, 'VariablesUIData' );
 # Run the process on the  remote database
 vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/Chores';
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+    ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
 ENDIF;
 ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  jsonProcess );
 vResponseCode = HttpResponseGetStatusCode();
 vResponseBody = HttpResponseGetBody();
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) );
+    ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) );
 ENDIF;
     
 IF ( vResponseCode = 400 );
@@ -57,13 +57,13 @@ IF ( vResponseCode = 400 );
         jsonProcess = JsonRemove ( jsonProcess, 'Name' );
 
         IF ( pDebug @= 'Y' );
-            #ASCIIOUTPUT ( pLogFile, ' PATCH ' | vRemoteDatabaseProcessesUrl );
+            ASCIIOUTPUT ( pLogFile, ' PATCH ' | vRemoteDatabaseProcessesUrl );
         ENDIF;
         ExecuteHttpRequest ( 'PATCH', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  jsonProcess );
         vResponseCode = HttpResponseGetStatusCode();
         vResponseBody = HttpResponseGetBody();
         IF ( pDebug @= 'Y' );
-            #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode )  );
+            ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode )  );
         ENDIF;
         IF ( vResponseCode < 200  % vResponseCode >= 300 );
             ASCIIOutput ( pLogFile, 'Error migrating chore: ' | pChore );

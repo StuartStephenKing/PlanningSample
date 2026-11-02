@@ -28,7 +28,7 @@ IF ( pReplace @= 'Y' );
     vResponseCode = HttpResponseGetStatusCode();
     vResponseBody = HttpResponseGetBody();
     IF ( pDebug @= 'Y' );
-        #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+        ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
     ENDIF;
     # IF ( vResponseCode <> 204 );
     #     ProcessError;
@@ -38,14 +38,14 @@ ENDIF;
 # Create Cube 
 vRemoteDatabaseProcessesUrl = vTargetPAURL | '/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/Cubes';
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
-    #ASCIIOUTPUT ( pLogFile, vCubeJSON );
+    ASCIIOUTPUT ( pLogFile, ' POST ' | vRemoteDatabaseProcessesUrl );
+    ASCIIOUTPUT ( pLogFile, vCubeJSON );
 ENDIF;
 ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' | vCubeJSON );
 vResponseCode = HttpResponseGetStatusCode();
 vResponseBody = HttpResponseGetBody();
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
 ENDIF;
 
 IF ( vResponseCode < 200 % vResponseCode >= 300 );

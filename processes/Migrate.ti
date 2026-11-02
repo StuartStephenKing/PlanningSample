@@ -22,7 +22,7 @@ ExecuteHttpRequest ( 'GET', vEnableSandboxDimensionUrl,  '-k' );
 vResponseCode = HttpResponseGetStatusCode();
 vResponseBody = HttpResponseGetBody();
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ASCIIOUTPUT ( vLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
 ENDIF;
 # IF ( vResponseCode <> 204 );
 #     ProcessError;

@@ -130,14 +130,14 @@ vJsonImportProcess = '{
 vRemoteDatabaseProcessesUrl = pTargetURL | '/api/' | pTargetTenant | '/v0/tm1/' | URLEncode ( pTargetTM1 ) | '/api/v1/' | 'ExecuteProcessWithReturn?$expand=*';
 
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, 'POST ' | vRemoteDatabaseProcessesUrl );
-    #ASCIIOutput ( pLogFile, vJsonImportProcess );
+    ASCIIOUTPUT ( pLogFile, 'POST ' | vRemoteDatabaseProcessesUrl );
+    ASCIIOutput ( pLogFile, vJsonImportProcess );
 ENDIF;
 ExecuteHttpRequest ( 'POST', vRemoteDatabaseProcessesUrl,  '-k', '-h Content-Type:application/json',  '-d ' |  vJsonImportProcess );
 vResponseCode = HttpResponseGetStatusCode();
 vResponseBody = HttpResponseGetBody();
 IF ( pDebug @= 'Y' );
-    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+    ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
 ENDIF;
 IF ( vResponseCode < 200 % vResponseCode >= 300 );
     ProcessQuit;
