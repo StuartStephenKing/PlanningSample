@@ -1,0 +1,53 @@
+#region Prolog
+MinorErrorLogMax = -1;
+OnMinorErrorDoItemSkip = 1;
+SetInputCharacterSet('TM1CS_UTF8');
+If (DimensionExists('New dimension 4') = 0);
+DimensionCreate('New dimension 4');
+EndIf;
+
+#endregion
+#region Metadata
+If(vType@='');
+vType='N';
+ElseIf(vType@='String' % vType@='S');
+vType='S';
+ElseIf(vType@='Numeric' % vType@='N');
+vType='N';
+ElseIf(vType@='Consolidated' % vType@='C');
+vType='C';
+Else;
+StringToNumber('IMPERROR_MT_'|vType);
+EndIf;
+If(vWeight@='');
+vWeight_num=1;
+Else;
+vWeight_num=StringToNumberEx(vWeight,'.',',');
+EndIf;
+vLastMember='';
+If(Member@<>'');
+If(vLastMember@='');
+HierarchyElementInsert('New dimension 4','New dimension 4','',Member,vType);
+Else;
+If(HierarchyElementExists('New dimension 4','Leaves',Member)=1);
+StringToNumber('IMPERROR_CL_'|Member);
+EndIf;
+HierarchyElementInsert('New dimension 4','New dimension 4','',Member,'C');
+HierarchyElementComponentAdd('New dimension 4','New dimension 4',Member,vLastMember,vWeight_num);
+EndIf;
+vLastMember=Member;
+EndIf;
+If(Parent@<>'');
+If(vLastMember@='');
+HierarchyElementInsert('New dimension 4','New dimension 4','',Parent,vType);
+Else;
+If(HierarchyElementExists('New dimension 4','Leaves',Parent)=1);
+StringToNumber('IMPERROR_CL_'|Parent);
+EndIf;
+HierarchyElementInsert('New dimension 4','New dimension 4','',Parent,'C');
+HierarchyElementComponentAdd('New dimension 4','New dimension 4',Parent,vLastMember,vWeight_num);
+EndIf;
+vLastMember=Parent;
+EndIf;
+
+#endregion

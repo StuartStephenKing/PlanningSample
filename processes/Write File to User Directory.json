@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"Write File to User Directory",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Write File to User Directory.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"VariablesUIData": []
+}

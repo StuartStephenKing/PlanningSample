@@ -1,0 +1,73 @@
+#region Prolog
+vProcessName = GetProcessName ();
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vLogFile     = '/Process logs/' | vProcessName | '_' | vNow | '.log';
+StringGlobalVariable ( 'vBearerToken' );
+DatasourceASCIIQuoteCharacter = '';
+
+#Get Token
+vBOXAuthURL  = 'https://api.box.com/oauth2/token';
+ExecuteHttpRequest( 'POST', vBOXAuthURL, '-k', '-h Content-Type:application/x-www-form-urlencoded', '-d client_id=' | pBoxClientID | '&client_secret=' | pBoxClientSecret | '&grant_type=client_credentials&box_subject_type=enterprise&box_subject_id=' | pBoxSubjectID );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF (vResponseCode <> 200);
+    IF ( pDebug @= 'Y' );
+        ASCIIOUTPUT( vLogFile, NumberToString(vResponseCode) | ' ' | vResponseBody);
+    ENDIF;
+    ProcessQuit;
+ELSE;
+    vBearerToken = JsonToString ( vResponseBody, 'access_token', -1, ' ');
+    IF ( pDebug @= 'Y' );
+        ASCIIOUTPUT( vLogFile, 'Retrieved bearer token:' | vBearerToken);
+    ENDIF;
+ENDIF;
+
+#Read Folder
+ASCIIOUTPUT ( vLogFile, 'GET ' | vBoxFolderURL);
+ExecuteHttpRequest( 'GET', vBoxFolderURL, '-k', '-h Authorization:Bearer ' | vBearerToken);
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF (vResponseCode <> 302 & vResponseCode <> 200);
+    IF ( pDebug @= 'Y' );
+        ASCIIOUTPUT( vLogFile, NumberToString(vResponseCode) | ' ' | vResponseBody);
+    ENDIF;
+    ProcessQuit;
+ELSE;
+    vJson_item_collection = JsonGet( vResponseBody, 'item_collection' ); 
+    vJsonArraySize        = JsonSize ( vJson_item_collection, 'entries' );
+    vJson_entries         = JsonGet( vJson_item_collection, 'entries' ); 
+    vJarrayIndex          = 0;
+    WHILE ( vJarrayIndex < vJsonArraySize );
+        vJsonEntry     = JsonGet ( vJson_entries, vJarrayIndex  );
+        vJsonEntryID   = JsonToString ( vJsonEntry, 'id' );
+        vJsonEntryType = JsonToString ( vJsonEntry, 'type' );
+        vJsonEntryname = JsonToString ( vJsonEntry, 'name' );
+
+        IF ( vJsonEntryType @= 'file' );
+            IF ( pDebug @= 'Y' );
+                ASCIIOUTPUT ( vLogFile, NUMBERTOSTRING ( vJarrayIndex ) | ' ' | vJsonEntryID | ' ' | vJsonEntryname );
+                ASCIIOUTPUT ( vLogFile, 'LONG: ' | NumberToString ( LONG ( vJsonEntryname ) ) | ' SCAN: ' | NumberToString ( SCAN ( '.csv', LOWER ( vJsonEntryname ) ) ) );
+            ENDIF;
+            IF ( SCAN ( '.csv', LOWER ( vJsonEntryname ) ) = LONG ( vJsonEntryname ) - 3 );
+                vCube = SUBST ( vJsonEntryname, 1, LONG ( vJsonEntryname ) - 4 );
+                IF ( pDebug @= 'Y' );
+                    ASCIIOUTPUT ( vLogFile, NUMBERTOSTRING ( vJarrayIndex ) | ' ' | vJsonEntryID | ' ' | vJsonEntryname );
+                    ASCIIOUTPUT ( vLogFile, 'Loading to cube: ' | vCube );
+                ENDIF;
+                IF ( CellGetS ( 'Cube Control', vCube, 'Import' ) @= 'Y' );
+                    RunProcess ( 'BOX.Import File', 'pCube', vCube, 'pBoxFileID', vJsonEntryID );
+                ENDIF;
+            ENDIF;
+        ELSE;
+            IF ( pDebug @= 'Y' );
+                ASCIIOUTPUT( vLogFile, NUMBERTOSTRING ( vJarrayIndex ) | ' ' | vJsonEntryType | ' ' |  vJsonEntryID | ' ' | vJsonEntryname );
+            ENDIF;
+        ENDIF;
+        vJarrayIndex = vJarrayIndex + 1;
+    END;
+ENDIF;
+#endregion
+#region Epilog
+
+
+#endregion

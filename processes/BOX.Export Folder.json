@@ -1,0 +1,34 @@
+{
+	"@type":"Process",
+	"Name":"BOX.Export Folder",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"BOX.Export Folder.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pDebug",
+			"Prompt":"",
+			"Value":"Y",
+			"Type":"String"
+		},
+		{
+			"Name":"pRemoveTempFiles",
+			"Prompt":"",
+			"Value":"N",
+			"Type":"String"
+		},
+		{
+			"Name":"pBoxParentFolderID",
+			"Prompt":"",
+			"Value":"312861741400",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "177854972800017",
+	"VariablesUIData": []
+}

@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"ABC",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"ABC.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"VariablesUIData": []
+}

@@ -1,0 +1,13 @@
+{
+	"@type":"Process",
+	"Name":"Copy All Time",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Copy All Time.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "177274884500071"
+}

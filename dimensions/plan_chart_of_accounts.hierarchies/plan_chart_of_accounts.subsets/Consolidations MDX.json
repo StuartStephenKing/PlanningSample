@@ -1,0 +1,6 @@
+{
+	"@type":"Subset",
+	"Name":"Consolidations MDX",
+	"Alias":"AccountName",
+	"Expression":"TM1IGNORE_BADTUPLES {FILTER({TM1SubsetToSet([plan_chart_of_accounts].[plan_chart_of_accounts] , \"Consolidations\" , \"public\")}, ([plan_chart_of_accounts].[plan_chart_of_accounts].CURRENTMEMBER.PROPERTIES(\"AccountClass\") = \"Expense\"))}"
+}

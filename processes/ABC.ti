@@ -1,0 +1,6 @@
+#region Prolog
+
+ASCIIOutput( '^/HI.TXT', 'ABC' );
+
+
+#endregion

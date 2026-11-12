@@ -1,0 +1,46 @@
+{
+	"@type":"Process",
+	"Name":"Export.TM1",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Export.TM1.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pSourceURL",
+			"Prompt":"",
+			"Value":"https://us-east-1.planninganalytics.test.saas.ibm.com",
+			"Type":"String"
+		},
+		{
+			"Name":"pSourceTenant",
+			"Prompt":"",
+			"Value":"1B1AOQ8H8DK4",
+			"Type":"String"
+		},
+		{
+			"Name":"pSourceTM1",
+			"Prompt":"",
+			"Value":"Planning Sample",
+			"Type":"String"
+		},
+		{
+			"Name":"pSourceAPIKey",
+			"Prompt":"",
+			"Value":"azI6NWU2MzRjMDEtNjcxZi00OTc3LWI4Y2ItNzY4Mjk4YmYxNzc1OnJjSnlTbmtNdTI5d3FQME1PaWg0bWhVMXRKRWNhV0pqb2hMRmdxTmhTRzQ9",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"",
+			"Value":"Y",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1780407798000",
+	"VariablesUIData": []
+}

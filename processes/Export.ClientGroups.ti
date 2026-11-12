@@ -1,0 +1,26 @@
+#region Prolog
+vExportFile = '^/' | pFile;
+vView       = '__Export';
+
+VIEWCREATE ( '}ClientGroups', vView, 1 );
+
+ViewColumnDimensionSet( '}ClientGroups', vView, ']Clients', 1 );
+SubsetCreatebyMDX( '__Export', '{EXCEPT([}Clients].[}Clients].MEMBERS , {[}Clients].[}Clients].[Admin]} , ALL)}', 1 );
+ViewSubsetAssign( '}ClientGroups', vView, '}Clients',  '__Export' );
+
+ViewRowDimensionSet( '}ClientGroups', vView, ']Groups', 1 );
+SubsetCreatebyMDX( '__Export', '{EXCEPT([}Groups].[}Groups].MEMBERS , {[}Groups].[}Groups].[ADMIN],[}Groups].[}Groups].[SecurityAdmin],[}Groups].[}Groups].[DataAdmin],[}Groups].[}Groups].[OperationsAdmin]} , ALL)}', 1 );
+ViewSubsetAssign( '}ClientGroups', vView, '}Groups',  '__Export' );
+
+DataSourceType='VIEW';
+DatasourceNameForServer='}ClientGroups';
+DatasourceCubeview=vView;
+
+#endregion
+#region Data
+ASCIIOUTPUT ( vExportFile, v1, v2 );
+#endregion
+#region Epilog
+
+
+#endregion

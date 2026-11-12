@@ -1,0 +1,22 @@
+{
+	"@type":"Process",
+	"Name":"Export Set",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Export Set.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pSet",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "177274884500070",
+	"VariablesUIData": []
+}

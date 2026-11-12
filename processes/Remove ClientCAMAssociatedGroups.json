@@ -1,0 +1,14 @@
+{
+	"@type":"Process",
+	"Name":"Remove ClientCAMAssociatedGroups",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Remove ClientCAMAssociatedGroups.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "1788176642000",
+	"VariablesUIData": []
+}

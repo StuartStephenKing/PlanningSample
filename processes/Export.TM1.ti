@@ -1,0 +1,213 @@
+#region Prolog
+
+vProcessName = GetProcessName ();
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vLogFile     = '/Process logs/' | vProcessName | '_' | vNow | '.log';
+vExportDir   = '/Model Exports/' | vNow | '/';
+vManifestFile = vExportDir | 'manifest.csv';
+ASCIIOutputOpen ( vLogFile, 1 );
+
+# Authenticate
+vSourcePAURL = pSourceURL | '/api/' | pSourceTenant | '/v0';
+vUrl = vSourcePAURL | '/rolemgmt/v1/users/me';
+ExecuteHttpRequest ( 'GET', vUrl, '-h Authorization: basic ' | Base64Encode( 'apikey:' | pSourceAPIKey ) );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody  = HttpResponseGetBody();
+IF ( vResponseCode < 200 % vResponseCode >= 300 );
+    ProcessError();
+ENDIF;
+
+# Check if EnableSandboxDimension is enabled
+vEnableSandboxDimensionUrl = vSourcePAURL | '/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/ActiveConfiguration/Administration/EnableSandboxDimension';
+ExecuteHttpRequest ( 'GET', vEnableSandboxDimensionUrl,  '-k' );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+# IF ( vResponseCode <> 204 );
+#     ProcessError;
+# ENDIF;
+vSandboxDimensionEnabled = JsonToString ( vResponseBody, 'value' );
+ASCIIOutput ( vLogFile, 'Sandbox dimension is ' | vSandboxDimensionEnabled );
+
+# Processes
+vProcessIndex = 1;
+vProcess = DIMNM ( '}Processes', vProcessIndex );
+WHILE ( vProcess @<> '' );
+    IF ( LOWER ( CellGetS( 'Migrate.Process', vProcess, 'Migrate' ) ) @= 'y' );
+        vReturnValue  = ExecuteProcess( 'Export.Process',
+                                        'pProcess', vProcess,
+                                        'pSourceURL', pSourceURL,
+                                        'pSourceTenant', pSourceTenant,
+                                        'pSourceTM1', pSourceTM1,
+                                        'pExportDir', vExportDir,
+                                        'pDebug', pDebug,
+                                        'pLogFile', vLogFile
+                                      );
+        IF ( vReturnValue = ProcessExitNormal()) ;
+            ASCIIOutput ( vManifestFile, 'Process', vProcess );
+        ENDIF;
+    ENDIF;        
+    vProcessIndex = vProcessIndex + 1;
+    vProcess = DIMNM ( '}Processes', vProcessIndex );
+END; 
+
+# Chores
+vChoreIndex = 1;
+vChore = DIMNM ( '}Chores', vChoreIndex );
+WHILE ( vChore @<> '' );
+    IF ( LOWER ( CellGetS( 'Migrate.Chore', vChore, 'Migrate' ) ) @= 'y' );
+        vReturnValue = ExecuteProcess( 'Export.Chore',
+                                       'pChore', vChore,
+                                       'pReplace', 'Y',
+                                       'pSourceTM1', pSourceTM1,
+                                       'pSourceURL', pSourceURL,
+                                       'pSourceTenant', pSourceTenant,
+                                       'pSourceAPIKey', pSourceAPIKey,
+                                       'pExportDir', vExportDir,
+                                       'pDebug', pDebug,
+                                       'pLogFile', vLogFile
+                                     );
+        IF ( vReturnValue = ProcessExitNormal()) ;
+            ASCIIOutput ( vManifestFile, 'Chore', vChore );
+        ENDIF;
+    ENDIF;        
+    vChoreIndex = vChoreIndex + 1;
+    vChore = DIMNM ( '}Chores', vChoreIndex );
+END; 
+
+
+#Dimension
+vDimensionIndex = 1;
+vDimensionHierarchy = DIMNM ( '}Dimensions', vDimensionIndex );
+WHILE ( vDimensionHierarchy @<> '' );
+    vDelimiterCharPos = SCAN ( ':', vDimensionHierarchy ); 
+    IF ( vDelimiterCharPos > 0 );
+        vChatEndPos = LONG ( vDimensionHierarchy );
+        vHierarchy = SUBST ( vDimensionHierarchy, vDelimiterCharPos + 1, vChatEndPos );
+        vDimension = SUBST ( vDimensionHierarchy, 1, vDelimiterCharPos - 1 );
+        #ASCIIOutput ( 'migrate_debug.txt',  'vDimension', vDimension,  'vHierarchy',vHierarchy );
+    ELSE;
+        vDimension = vDimensionHierarchy;
+        vHierarchy = vDimensionHierarchy;
+    ENDIF;
+
+    #ASCIIOutput ( 'migrate_debug.txt',  'vDimension', vDimension,  'vHierarchy',vHierarchy );
+
+    IF ( LOWER ( CellGetS( 'Migrate.Dimension', vDimensionHierarchy, 'Migrate Hierarchy' ) ) @= 'y' );
+        vReturnValue = ExecuteProcess ( 'Export.Hierarchy',
+                                        'pDimension', vDimension,
+                                        'pHierarchy', vHierarchy,
+                                        'pSourceTM1', pSourceTM1,
+                                        'pSourceTenant', pSourceTenant,
+                                        'pSourceURL', pSourceURL,
+                                        'pSourceAPIKey', pSourceAPIKey,
+                                        'pExportDir', vExportDir,
+                                        'pDebug', pDebug,
+                                        'pLogFile', vLogFile
+                                      );
+        IF ( vReturnValue = ProcessExitNormal()) ;
+            ASCIIOutput ( vManifestFile, 'Dimension', vDimension, vHierarchy );
+        ENDIF;        
+    ENDIF;
+
+    IF ( LOWER ( CellGetS( 'Migrate.Dimension', vDimensionHierarchy, 'Migrate Attributes' ) ) @= 'y' );
+        ExecuteProcess ( 'Export.Attributes',
+                         'pDimension', vDimension,
+                         'pHierarchy', vHierarchy,           
+                         'pSourceTM1', pSourceTM1,
+                         'pSourceURL', pSourceURL,
+                         'pSourceTenant', pSourceTenant,
+                         'pSourceAPIKey', pSourceAPIKey,
+                         'pExportDir', vExportDir,
+                         'pDebug', pDebug,
+                         'pLogFile', vLogFile );
+    ENDIF;
+
+    IF ( LOWER ( CellGetS( 'Migrate.Dimension', vDimensionHierarchy, 'Migrate Subsets' ) ) @= 'y' );
+        ExecuteProcess ( 'Export.Subsets',
+                         'pDimension', vDimension,
+                         'pHierarchy', vHierarchy,
+                         'pReplace', 'Y',
+                         'pSourceTM1', pSourceTM1,
+                         'pSourceTenant', pSourceTenant,
+                         'pSourceURL', pSourceURL,
+                         'pSourceAPIKey', pSourceAPIKey,
+                         'pExportDir', vExportDir,
+                         'pDebug', pDebug,
+                         'pLogFile', vLogFile
+                       );
+    ENDIF;
+
+    vDimensionIndex = vDimensionIndex + 1;
+    vDimensionHierarchy = DIMNM ( '}Dimensions', vDimensionIndex );
+END; 
+
+
+# Cubes 
+vCubeIndex = 1;
+vCube = DIMNM ( '}Cubes', vCubeIndex );
+WHILE ( vCube @<> '' );
+
+    IF ( LOWER ( CellGetS ( 'Migrate.Cube', vCube, 'Migrate Cube' ) ) @= 'y' );
+        vReturnValue = ExecuteProcess ( 'Export.Cube',
+                         'pCube', vCube,
+                         'pSourceTM1', pSourceTM1,
+                         'pSourceTenant', pSourceTenant,
+                         'pSourceURL', pSourceURL,
+                         'pSourceAPIKey', pSourceAPIKey,
+                         'pExportDir', vExportDir,
+                         'pDebug', pDebug,
+                         'pLogFile', vLogFile
+                       );
+        IF ( vReturnValue = ProcessExitNormal()) ;
+            ASCIIOutput ( vManifestFile, 'Cube', vCube );
+        ENDIF;   
+    ENDIF;
+
+    IF ( LOWER ( CellGetS ( 'Migrate.Cube', vCube, 'Migrate Rules' ) ) @= 'y' );
+        ExecuteProcess ( 'Export.Rules',
+                         'pCube', vCube,
+                         'pSourceTM1', pSourceTM1,
+                         'pSourceTenant', pSourceTenant,
+                         'pSourceURL', pSourceURL,
+                         'pSourceAPIKey', pSourceAPIKey,
+                         'pExportDir', vExportDir,
+                         'pDebug', pDebug,
+                         'pLogFile', vLogFile
+                       );
+    ENDIF;
+
+    IF ( LOWER ( CellGetS ( 'Migrate.Cube', vCube, 'Migrate Views' ) ) @= 'y' );
+        ExecuteProcess( 'Export.Views',
+                        'pCube', vCube,
+                        'pSourceTM1', pSourceTM1,
+                        'pSourceTenant', pSourceTenant,
+                        'pSourceURL', pSourceURL,
+                        'pSourceAPIKey', pSourceAPIKey,
+                        'pExportDir', vExportDir,
+                        'pDebug', pDebug,
+                        'pLogFile', vLogFile
+                      );
+    ENDIF;
+
+    IF ( LOWER ( CellGetS ( 'Migrate.Cube', vCube, 'Migrate Data' ) ) @= 'y' );
+        ExecuteProcess( 'Export.Data',
+                        'pCube', vCube,
+                        'pSourceTM1', pSourceTM1,
+                        'pSourceTenant', pSourceTenant,
+                        'pSourceURL', pSourceURL,
+                        'pSourceAPIKey', pSourceAPIKey,
+                        'pExportDir', vExportDir,
+                        'pDebug', pDebug,
+                        'pLogFile', vLogFile
+                      );
+    ENDIF;
+
+    vCubeIndex = vCubeIndex + 1;
+    vCube = DIMNM ( '}Cubes', vCubeIndex );
+END; 
+
+
+#endregion

@@ -1,0 +1,22 @@
+{
+	"@type":"Process",
+	"Name":"Export.Clients",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Export.Clients.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pFile",
+			"Prompt":"",
+			"Value":"client.csv",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1783107786000",
+	"VariablesUIData": []
+}

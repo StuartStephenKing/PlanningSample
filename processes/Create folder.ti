@@ -1,0 +1,7 @@
+#region Prolog
+
+ASCIIOutput( 'new_dir/file.txt', 'Hello' );
+
+
+
+#endregion

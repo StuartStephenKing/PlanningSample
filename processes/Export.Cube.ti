@@ -1,0 +1,29 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile , 'Exporting cube: ' | pCube );
+vExportFile = pExportDir | '/Cubes/' | pCube | '/' | 'cube.json';
+
+vCubeJSON = '{"Name":"' | pCube | '"}';
+
+vCubeDimensionsJsonArray = '[]';
+vDimensionIndex = 1;
+vDimension = TABDIM ( pCube, vDimensionIndex );
+WHILE ( vDimension @<> '' );
+    vCubeDimensionsJsonArray = JsonAdd ( vCubeDimensionsJsonArray, vDimensionIndex - 1, StringToJson ( 'Dimensions(''' | vDimension | ''')' ) );
+    vDimensionIndex = vDimensionIndex + 1;
+    vDimension = TABDIM ( pCube, vDimensionIndex );
+END;
+
+vCubeJSON = JsonAdd ( vCubeJSON, 'Dimensions@odata.bind', JsonToString ( vCubeDimensionsJsonArray ) );
+
+ASCIIOutput ( vExportFile, vCubeJSON );
+
+
+
+
+#endregion
+#region Epilog
+
+
+#endregion

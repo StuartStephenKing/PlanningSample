@@ -1,0 +1,53 @@
+#region Prolog
+
+ASCIIDelete( pFileName );
+
+
+# Let's make our output raw text ;-)
+DataSourceASCIIQuoteCharacter = '';
+DataSourceASCIIDelimiter = ' ';
+
+
+# Define the algorithm to be used as plain string value
+jHeader = 'RS384';
+
+
+# Create a JSON object representing the claims to be put in the payload
+jPayload = JsonAdd( '{}', 'sub', StringToJson('hubert.heijkers@nl.ibm.com'));
+jPayload = JsonAdd( jPayload, 'iat',
+    0 );
+jPayload = JsonAdd( jPayload, 'exp',
+    3600 );
+jPayload = JsonAdd( jPayload, 'sample', JsonAdd( '[]', '', StringToJson('test')));
+jPayload = JsonAdd( jPayload, 'aud', JsonAdd( JsonAdd( JsonAdd( '[]', '', StringToJson('aws')), '', StringToJson('azure')), '', StringToJson('google')));
+
+
+# Create the JWT token using the private key
+jwt_token = JwtCreate( jHeader, jPayload, rsa_priv_key, 'foobar' );
+
+
+# Simply decode the token, ignoring if it's valid or not
+decoded_token = JwtDecode( jwt_token );
+
+
+# Create a JSON object representing the claims to verify
+
+# Note: issued_at, not_before and expires claims are included in verfication if specified
+jWith = JsonAdd( '{}', 'sub', StringToJson('hubert.heijkers@nl.ibm.com'));
+jWith = JsonAdd( jWith, 'aud', JsonAdd( JsonAdd( '[]', '', StringToJson('azure')), '', StringToJson('aws')));
+
+
+# Validate the token using the public key and checking the claims
+verified_token = JwtVerify( jwt_token, jWith, 'RS384', rsa_pub_key, '' );
+
+
+# Contruct a JSON object containing the results of each step for verification
+jOut = JsonAdd( '{}', 'token', StringToJson( jwt_token ));
+jOut = JsonAdd( jOut, 'decoded_token', decoded_token );
+jOut = JsonAdd( jOut, 'verified_token', verified_token );
+
+
+# Write the test result to a file
+TextOutput( pFileName, jOut );
+
+#endregion

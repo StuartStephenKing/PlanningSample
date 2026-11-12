@@ -1,0 +1,6 @@
+{
+	"@type":"Subset",
+	"Name":"DA Approval",
+	"Alias":"Department",
+	"Expression":"{HIERARCHIZE({[plan_department].[plan_department].[1000],[plan_department].[plan_department].[100],[plan_department].[plan_department].[105],[plan_department].[plan_department].[110],[plan_department].[plan_department].[115],[plan_department].[plan_department].[200],[plan_department].[plan_department].[300],[plan_department].[plan_department].[400],[plan_department].[plan_department].[400^405],[plan_department].[plan_department].[410],[plan_department].[plan_department].[415]})}"
+}

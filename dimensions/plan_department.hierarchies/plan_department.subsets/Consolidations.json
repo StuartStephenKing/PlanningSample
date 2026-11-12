@@ -1,0 +1,6 @@
+{
+	"@type":"Subset",
+	"Name":"Consolidations",
+	"Alias":"Department",
+	"Expression":"TM1IGNORE_BADTUPLES {FILTER({TM1SUBSETALL([plan_department])}, ([plan_department].[plan_department].CURRENTMEMBER.PROPERTIES(\"ELEMENT_LEVEL\", TYPED) > 0))}"
+}

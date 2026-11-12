@@ -1,0 +1,19 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Exporting rules for cube: ' | pCube );
+vExportFile = pExportDir | '/Cubes/' | pCube | '/' | 'rules.json';
+
+vRulesJSON = '{}';
+vRulesJSON = JsonAdd ( vRulesJSON, 'Rules', StringToJson ( CubeRuleGet( pCube ) ) );
+
+ASCIIOutput ( vExportFile, vRulesJSON );
+
+
+
+
+#endregion
+#region Epilog
+
+
+#endregion

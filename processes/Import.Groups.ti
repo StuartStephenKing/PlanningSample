@@ -1,0 +1,10 @@
+#region Prolog
+DataSourceType = 'CHARACTERDELIMITED';
+DatasourceNameForServer = '^/' | pFile;
+#endregion
+#region Metadata
+AddGroup( v1 );
+#endregion
+#region Data
+AttrPutS( v2, '}Groups', v1, '}TM1_DefaultDisplayValue' );
+#endregion

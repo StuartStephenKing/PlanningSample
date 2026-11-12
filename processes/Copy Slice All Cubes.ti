@@ -1,0 +1,36 @@
+#region Prolog
+
+# vCopyDimension = 'plan_version';
+# vSourceMember = 'FY 2004 Budget';
+# vTargetMember = 'FY 2024 Budget';
+
+vCubeIndex = 1;
+vCube = DIMNM( '}Cubes', vCubeIndex );
+WHILE ( vCube @<> '' );
+    vFoundCopyDimension = 0;
+    vCubeDimensionIndex = 1;
+    vCubeDimension = TABDIM ( vCube, vCubeDimensionIndex );
+    WHILE ( vCubeDimension @<> '' );
+        IF ( vCubeDimension @= pCopyDimension);
+            vFoundCopyDimension = 1;
+        ENDIF;
+        vCubeDimensionIndex = vCubeDimensionIndex + 1;
+        vCubeDimension = TABDIM ( vCube, vCubeDimensionIndex );
+    END;
+
+    IF ( vFoundCopyDimension = 1 );
+        ExecuteProcess ( 'Copy Slice',
+                         'pCube', vCube,
+                         'pDimension', pCopyDimension,
+                         'pSourceMember', pSourceMember,
+                         'pTargetMember', pTargetMember );
+
+    ENDIF;
+
+    vCubeIndex = vCubeIndex + 1;
+    vCube = DIMNM( '}Cubes', vCubeIndex );
+END;
+
+
+
+#endregion

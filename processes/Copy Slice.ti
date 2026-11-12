@@ -1,0 +1,205 @@
+#region Prolog
+
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vExportFile = pCube | '_' | vNow |  '.csv';
+vSourceView       = pCube | '_' | vNow | '_source';
+vTargetView       = pCube | '_' | vNow | '_target';
+
+LogOutput( 'INFO', 'Copying slice for cube ' | pCube |' from ' | pSourceMember | ' to ' | pTargetMember | ' in dimension ' |  pDimension );
+
+vSourceMemberType = DTYPE( pDimension, pSourceMember );
+DimensionElementInsert( pDimension, '', pTargetMember, vSourceMemberType );
+
+#Define the source view for data extraction
+vSliceDimensionIndex = 0;
+
+vCubeDimensionIndex    = 1;
+vCubeDimension      = TABDIM ( pCube, vCubeDimensionIndex );
+VIEWCREATE ( pCube, vSourceView, 1 );
+VIEWCREATE ( pCube, vTargetView, 1 );
+WHILE ( vCubeDimension @<> '');
+    ViewColumnDimensionSet( pCube, vSourceView, vCubeDimension, vCubeDimensionIndex );
+    #IF ( SubsetExists( vCubeDimension, vSourceView ) = 0 );
+        LogOutput( 'INFO', 'Comparing ' | vCubeDimension | ' to ' | pDimension );
+        IF ( vCubeDimension @= pDimension );
+            vSliceDimensionIndex = vCubeDimensionIndex;
+            subsetSourceMDX = '{[' | vCubeDimension | '].[' | vCubeDimension | '].[' | pSourceMember | ']}';
+            SubsetCreateByMDX ( vSourceView, subsetSourceMDX, vCubeDimension, 1 );
+            subsetTargetMDX = '{[' | vCubeDimension | '].[' | vCubeDimension | '].[' | pTargetMember | ']}';
+            SubsetCreateByMDX ( vTargetView, subsetTargetMDX, vCubeDimension, 1 );
+        ELSE;
+            subsetMDX = 'TM1FILTERBYLEVEL({{[' | vCubeDimension | '].[' | vCubeDimension | '].MEMBERS}}, 0)';
+            SubsetCreateByMDX ( vSourceView, subsetMDX, vCubeDimension, 1 );
+            SubsetCreateByMDX ( vTargetView, subsetMDX, vCubeDimension, 1 );
+        ENDIF;
+    #ENDIF;
+    ViewSubsetAssign ( pCube, vSourceView, vCubeDimension, vSourceView );
+    ViewSubsetAssign ( pCube, vTargetView, vCubeDimension, vTargetView );
+    vCubeDimensionIndex = vCubeDimensionIndex + 1;
+    vCubeDimension   = TABDIM ( pCube, vCubeDimensionIndex );
+END;
+
+ViewZeroOut ( pCube, vTargetView );
+
+vLastDimIndex = CubeDimensionCountGet( pCube );
+vLastDim      = TABDIM( pCube, vLastDimIndex );
+
+DataSourceType='VIEW';
+DatasourceNameForServer=pCube;
+DatasourceCubeview=vSourceView;
+
+ViewExtractSkipCalcsSet ( pCube, vSourceView, 1 );
+ViewExtractSkipRuleValuesSet ( pCube, vSourceView, 1 );
+ViewExtractSkipZeroesSet ( pCube, vSourceView, 1 );
+
+LogOutput( 'INFO', 'Slice Dimension Index is ' | NumberToString ( vSliceDimensionIndex ) | ' on cube ' | pCube );
+
+#endregion
+#region Data
+
+IF ( vSliceDimensionIndex = 1 );
+    v1 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 2 );
+    v2 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 3 );
+    v3 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 4 );
+    v4 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 5 );
+    v5 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 6 );
+    v6 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 7 );
+    v7 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 8 );
+    v8 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 9 );
+    v9 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 10 );
+    v10 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 11 );
+    v11 = pTargetMember;
+ELSEIF ( vSliceDimensionIndex = 12 );
+    v12 = pTargetMember;
+ELSE;
+    ProcessError;
+ENDIF;
+
+
+IF ( SCAN( '}ElementAttributes_', pCube ) = 1 );
+IF ( CELLISUPDATEABLE  ( pCube, v1, v2 ) = 1 );
+        IF ( DTYPE ( vLastDim , v2 ) @= 'AA' );
+            # Do nothing - You cannot copy an alias from an existing member
+        ELSEIF ( DTYPE ( vLastDim , v2 ) @= 'AN' );
+            CELLPUTN ( StringToNumber ( v3 ), pCube, v1, v2 );
+        ELSE;
+            CELLPUTS ( v3, pCube, v1, v2 );
+        ENDIF;
+    ENDIF;
+    
+ELSEIF ( vLastDimIndex = 2 );
+    IF ( CELLISUPDATEABLE  ( pCube, v1, v2 ) = 1 );
+        IF ( DTYPE ( vLastDim , v2 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v3 ), pCube, v1, v2 );
+        ELSE;
+            CELLPUTS ( v3, pCube, v1, v2 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 3 );
+    IF ( CELLISUPDATEABLE  ( pCube, v1, v2, v3 ) = 1);
+        IF ( DType ( vLastDim , v3 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v4 ), pCube, v1, v2, v3 );
+        ELSE;
+            CELLPUTS ( v4, pCube, v1, v2, v3 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 4 );
+    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4 ) = 1);
+        IF ( DTYPE ( vLastDim , v4 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v5 ), pCube, v1, v2, v3, v4 );
+        ELSE;
+            CELLPUTS ( v5, pCube, v1, v2, v3, v4 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 5 );
+    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5 ) = 1);
+        IF ( DTYPE ( vLastDim , v5 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v6 ), pCube, v1, v2, v3, v4, v5 );
+        ELSE;
+            CELLPUTS ( v6, pCube, v1, v2, v3, v4, v5 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 6 );
+    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5, v6 ) = 1);
+        IF ( DTYPE ( vLastDim , v6 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v7 ), pCube, v1, v2, v3, v4, v5, v6 );
+        ELSE;
+            CELLPUTS ( v7, pCube, v1, v2, v3, v4, v5, v6 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 7 );
+    IF (CELLISUPDATEABLE  ( pCube, v1, v2, v3, v4, v5, v6, v7 ) = 1);
+        IF ( DTYPE ( vLastDim , v7 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v8 ), pCube, v1, v2, v3, v4, v5, v6, v7 );
+        ELSE;
+            CELLPUTS ( v8, pCube, v1, v2, v3, v4, v5, v6, v7 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 8 );
+    IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8 ) = 1);
+        IF ( DTYPE ( vLastDim , v8 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v9 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+        ELSE;
+            CELLPUTS ( v9, pCube, v1, v2, v3, v4, v5, v6, v7, v8 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 9 );
+    IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 ) = 1);
+        IF ( DTYPE ( vLastDim , v9 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v10 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+        ELSE;
+            CELLPUTS ( v10, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 10);
+    IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 ) = 1);
+        IF ( DTYPE ( vLastDim , v10 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v11 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+        ELSE;
+            CELLPUTS ( v11, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+        ENDIF;
+    ENDIF;
+ELSEIF ( vLastDimIndex = 11 );
+    IF ( CELLISUPDATEABLE( pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 ) = 1);
+        IF ( DTYPE ( vLastDim , v11 ) @= 'N' );
+            CELLPUTN ( StringToNumber ( v12 ), pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+        ELSE;
+            CELLPUTS ( v12, pCube, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+        ENDIF;
+    ENDIF;
+ENDIF;
+
+# IF ( vLastDimIndex = 2);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3 );
+# ELSEIF ( vLastDimIndex = 3);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4 );
+# ELSEIF ( vLastDimIndex = 4);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5 );
+# ELSEIF ( vLastDimIndex = 5);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6 );
+# ELSEIF ( vLastDimIndex = 6);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7 );
+# ELSEIF ( vLastDimIndex = 7);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8 );
+# ELSEIF ( vLastDimIndex = 8);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9 );
+# ELSEIF ( vLastDimIndex = 9);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10 );
+# ELSEIF ( vLastDimIndex = 10);
+#    ASCIIOUTPUT (vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11 );
+# ELSEIF ( vLastDimIndex = 11);
+#    ASCIIOUTPUT ( vExportFile, v1, v2, v3, v4, v5, v6, v7, v8, v9, v10, v11, v12 );
+# ENDIF;
+
+
+#endregion

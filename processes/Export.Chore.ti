@@ -1,0 +1,27 @@
+#region Prolog
+
+ASCIIOutputOpen ( pLogFile, 1 );
+ASCIIOutput ( pLogFile, 'Exporting chore: ' | pChore );
+
+vExportFile = pExportDir | '/Chores/' | pChore | '.json';
+
+#Read the local process
+vProcessURL = pSourceURL | '/api/' | pSourceTenant | '/v0/tm1/' | URLEncode ( pSourceTM1 ) | '/api/v1/Chores(''' | URLEncode ( pChore ) | ''')';
+ExecuteHttpRequest ( 'GET', vProcessURL, '-k', '-h Content-Type:application/json' );
+vResponseCode = HttpResponseGetStatusCode();
+vResponseBody = HttpResponseGetBody();
+IF ( pDebug @= 'Y' );
+    #ASCIIOUTPUT ( pLogFile, NumberToString ( vResponseCode ) | ' ' | vResponseBody );
+ENDIF;
+IF ( vResponseCode <> 200 );
+    ProcessError();
+ENDIF;
+
+#Modify the local process
+jsonChore = vResponseBody;
+jsonChore = JsonRemove ( jsonChore, '@odata.context' );
+jsonChore = JsonRemove( jsonChore, '@odata.etag' );
+
+ASCIIOutput ( vExportFile, jsonChore );
+
+#endregion

@@ -1,0 +1,14 @@
+#region Prolog
+
+DataSourceType = 'CHARACTERDELIMITED';
+DatasourceNameForServer = pFile;
+
+
+#endregion
+#region Data
+
+ASCIIOutput ( 'uploaded_data.csv', v1, v2, v3 );
+
+
+
+#endregion

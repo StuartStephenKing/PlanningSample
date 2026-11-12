@@ -1,0 +1,14 @@
+{
+	"@type":"Process",
+	"Name":"BOX.Export",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"BOX.Export.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":[],
+	"Variables":[],
+	"UID": "177854972800018",
+	"VariablesUIData": []
+}

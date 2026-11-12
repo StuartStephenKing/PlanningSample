@@ -1,0 +1,19 @@
+#region Prolog
+
+vSourceYear = '2003';
+vTargetYear = '2023';
+
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Jan-' | vSourceYear, 'pTargetMember', 'Jan-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Feb-' | vSourceYear, 'pTargetMember', 'Feb-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Mar-' | vSourceYear, 'pTargetMember', 'Mar-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Apr-' | vSourceYear, 'pTargetMember', 'Apr-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'May-' | vSourceYear, 'pTargetMember', 'May-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Jun-' | vSourceYear, 'pTargetMember', 'Jun-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Jul-' | vSourceYear, 'pTargetMember', 'Jul-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Aug-' | vSourceYear, 'pTargetMember', 'Aug-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Sep-' | vSourceYear, 'pTargetMember', 'Sep-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Nov-' | vSourceYear, 'pTargetMember', 'Nov-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Oct-' | vSourceYear, 'pTargetMember', 'Oct-' | vTargetYear );
+ExecuteProcess( 'Copy Slice All Cubes', 'pCopyDimension', 'plan_time', 'pSourceMember', 'Dec-' | vSourceYear, 'pTargetMember', 'Dec-' | vTargetYear );
+
+#endregion

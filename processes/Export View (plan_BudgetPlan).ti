@@ -1,0 +1,32 @@
+#region Prolog
+
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vDimension = 'plan_chart_of_accounts';
+vExportView = '_export_' | vNow;
+vExportFile = './model_upload/' | vExportView | '.csv';
+
+vCube = 'plan_BudgetPlan';
+vMDX = 'SELECT 
+   ' | pTime | ' ON 0, 
+   ' | pChartOfAccounts | ' ON 1 
+FROM
+   [' | vCube | '] 
+WHERE (
+   ' | pVersion | ', 
+   ' | pBusinessUnit | ',
+   ' | pDepartment | ', 
+   ' | pExchangeRates | ',
+   ' | pSource | ' )';
+
+ViewCreateByMDX( vCube, vExportView, vMDX, 1 );
+DatasourceCubeview = vExportView;
+
+
+
+#endregion
+#region Data
+
+ASCIIOutput( vExportFile, v1, v2, v3, v4, v5, v6, v7, NumberToString ( v8 ) );
+
+
+#endregion

@@ -1,0 +1,52 @@
+{
+	"@type":"Process",
+	"Name":"Import.TM1",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Import.TM1.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pTargetURL",
+			"Prompt":"",
+			"Value":"https://us-east-1.planninganalytics.test.saas.ibm.com",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetTenant",
+			"Prompt":"",
+			"Value":"1B1AOQ8H8DK4",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetTM1",
+			"Prompt":"",
+			"Value":"Planning Sample",
+			"Type":"String"
+		},
+		{
+			"Name":"pTargetAPIKey",
+			"Prompt":"",
+			"Value":"azI6NWU2MzRjMDEtNjcxZi00OTc3LWI4Y2ItNzY4Mjk4YmYxNzc1OnJjSnlTbmtNdTI5d3FQME1PaWg0bWhVMXRKRWNhV0pqb2hMRmdxTmhTRzQ9",
+			"Type":"String"
+		},
+		{
+			"Name":"pImportDir",
+			"Prompt":"",
+			"Value":"/Model Exports/20260602183711",
+			"Type":"String"
+		},
+		{
+			"Name":"pDebug",
+			"Prompt":"",
+			"Value":"Y",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "1780433551000",
+	"VariablesUIData": []
+}

@@ -1,0 +1,18 @@
+#region Prolog
+
+
+IF ( 1 = 1 );
+    LogOutput( 'INFO', 'I failed', 1 );
+
+    ProcessError();
+ENDIF;
+
+
+ASCIIOutput( 'my_output.txt', p1, p2, p3, p4);
+
+DataSourceType = 'CHARACTERDELIMITED';
+DatasourceNameForServer = p1;
+
+
+
+#endregion

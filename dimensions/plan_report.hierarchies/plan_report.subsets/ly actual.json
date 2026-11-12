@@ -1,0 +1,19 @@
+{
+	"@type":"Subset",
+	"Name":"ly actual",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('plan_report')/Hierarchies('plan_report')/Elements('ly actual')"
+		},
+		{
+			"@id":"Dimensions('plan_report')/Hierarchies('plan_report')/Elements('ly actual')"
+		},
+		{
+			"@id":"Dimensions('plan_report')/Hierarchies('plan_report')/Elements('ly actual')"
+		},
+		{
+			"@id":"Dimensions('plan_report')/Hierarchies('plan_report')/Elements('ly actual')"
+		}
+	]
+}

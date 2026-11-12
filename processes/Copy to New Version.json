@@ -1,0 +1,27 @@
+{
+	"@type":"Process",
+	"Name":"Copy to New Version",
+	"HasSecurityAccess":false,
+	"Code@Code.link":"Copy to New Version.ti",
+	"DataSource":
+	{
+		"Type":"None"
+	},
+	"Parameters":
+	[
+		{
+			"Name":"pCurrentVersion",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		},
+		{
+			"Name":"pNewVersion",
+			"Prompt":"",
+			"Value":"",
+			"Type":"String"
+		}
+	],
+	"Variables":[],
+	"UID": "177274884500074"
+}

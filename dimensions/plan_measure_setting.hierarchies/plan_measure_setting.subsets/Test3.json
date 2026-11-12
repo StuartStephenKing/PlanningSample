@@ -1,0 +1,20 @@
+{
+	"@type":"Subset",
+	"Name":"Test3",
+	"Alias":"Setting",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('plan_measure_setting')/Hierarchies('plan_measure_setting')/Elements('Setting')"
+		},
+		{
+			"@id":"Dimensions('plan_measure_setting')/Hierarchies('plan_measure_setting')/Elements('Setting')"
+		},
+		{
+			"@id":"Dimensions('plan_measure_setting')/Hierarchies('plan_measure_setting')/Elements('Setting')"
+		},
+		{
+			"@id":"Dimensions('plan_measure_setting')/Hierarchies('plan_measure_setting')/Elements('Setting')"
+		}
+	]
+}

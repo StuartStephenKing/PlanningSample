@@ -1,0 +1,19 @@
+{
+	"@type":"Subset",
+	"Name":"budget",
+	"Elements":
+	[
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('budget')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('budget')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('budget')"
+		},
+		{
+			"@id":"Dimensions('plan_source')/Hierarchies('plan_source')/Elements('budget')"
+		}
+	]
+}

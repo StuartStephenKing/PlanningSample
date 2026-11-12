@@ -1,0 +1,18 @@
+#region Prolog
+
+vNow         = TIMST ( NOW (), '\Y\m\d\h\i\s' );
+vDimension = 'plan_chart_of_accounts';
+vSetName = 'set_' | vDimension | '_' | vNow;
+vExportFile = vSetName | '.csv';
+SubsetCreatebyMDX( vSetName, pSet, 1 );
+
+vSetIndex = 1;
+vSetSize = SubsetGetSize ( vDimension, vSetName );
+WHILE ( vSetIndex <= vSetSize );
+    vElement = SubsetGetElementName ( vDimension, vSetName, vSetIndex );
+    vAlias = ATTRS ( vDimension, vElement, 'AccountName' );
+    ASCIIOutput ( vExportFile, vAlias );
+    vSetIndex = vSetIndex + 1;
+END;
+
+#endregion
